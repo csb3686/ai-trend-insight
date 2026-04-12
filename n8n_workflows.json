@@ -1,0 +1,110 @@
+{
+  "name": "Phase 3 Data Collection",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "e1f1bb58-29a5-4e76-8cc0-cf0092c608f1",
+      "name": "Every Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [ 220, 160 ]
+    },
+    {
+      "parameters": {
+        "command": "C:\\Users\\User\\Desktop\\ai-trend-insight\\backend\\.venv\\Scripts\\python.exe -m pipeline.collectors.geek_news_collector",
+        "executeOnce": false
+      },
+      "id": "84a7536d-9bb3-4f24-9b88-12c5bda2b5a5",
+      "name": "GeekNews Python",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [ 460, 60 ]
+    },
+    {
+      "parameters": {
+        "command": "C:\\Users\\User\\Desktop\\ai-trend-insight\\backend\\.venv\\Scripts\\python.exe -m pipeline.collectors.hacker_news_collector"
+      },
+      "id": "3beabaed-ba34-4b53-b295-e21b1b0fe3a7",
+      "name": "HackerNews Python",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [ 460, 260 ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "a9a3809e-73ea-44a6-8051-bd43e33b00e3",
+      "name": "Every 6 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [ 220, 480 ]
+    },
+    {
+      "parameters": {
+        "command": "C:\\Users\\User\\Desktop\\ai-trend-insight\\backend\\.venv\\Scripts\\python.exe -m pipeline.collectors.github_trending_collector"
+      },
+      "id": "7ab42566-f138-4e8c-8f43-a60ad1ba56b0",
+      "name": "GitHub Trending Python",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [ 460, 480 ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Every Hour": {
+      "main": [
+        [
+          {
+            "node": "GeekNews Python",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HackerNews Python",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 6 Hours": {
+      "main": [
+        [
+          {
+            "node": "GitHub Trending Python",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "df1b2fc8-80e9-4e5a-ab0a-5c1cfab0ef82",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "JxwW1I5zWv4m9yN4",
+  "tags": []
+}

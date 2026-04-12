@@ -1,49 +1,14 @@
-# ========================
-# FastAPI 웹 프레임워크
-# ========================
-fastapi
-uvicorn[standard]
-
-# ========================
-# 데이터베이스 (MySQL)
-# ========================
-sqlalchemy
-pymysql
-cryptography          # PyMySQL SSL 지원용
-
-# ========================
-# 데이터 정제
-# ========================
-pandas
-beautifulsoup4
-lxml                  # BeautifulSoup HTML 파서
-langdetect            # 언어 감지
-
-# ========================
-# LangChain & Gemini
-# ========================
-langchain
-langchain-google-genai  # GoogleGenerativeAIEmbeddings 및 Gemini LLM
-
-# ========================
-# 벡터 DB
-# ========================
-chromadb
-
-# ========================
-# 크롤링
-# ========================
-playwright
-feedparser            # RSS 파싱
-
-# ========================
-# 환경변수 관리
-# ========================
-python-dotenv
-pydantic-settings
-
-# ========================
-# 테스트
-# ========================
-pytest
-httpx                 # FastAPI TestClient용
+fastapi>=0.109.2
+uvicorn>=0.27.1
+sqlalchemy>=2.0.25
+pymysql>=1.1.0
+python-dotenv>=1.0.1
+feedparser>=6.0.11
+requests>=2.31.0
+playwright>=1.41.2
+pydantic>=2.6.1
+pydantic-settings>=2.1.0
+pandas>=2.2.0
+langchain>=0.1.5
+chromadb>=0.4.22
+schedule>=1.2.1
