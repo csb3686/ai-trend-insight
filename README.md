@@ -95,7 +95,7 @@
 ## 📁 프로젝트 구조
 
 ```
-automation-project/
+ai-trend-insight/
 ├── backend/                  # FastAPI 백엔드
 │   ├── app/
 │   │   ├── api/             # 라우터 (뉴스, 트렌드, 챗봇)
@@ -103,14 +103,14 @@ automation-project/
 │   │   ├── schemas/         # Pydantic 스키마
 │   │   ├── services/        # 비즈니스 로직
 │   │   └── main.py
-│   ├── requirements.txt
+│   └── requirements.txt
 │
 ├── frontend/                 # React 프론트엔드
 │   ├── src/
 │   │   ├── components/      # 히트맵, 챗봇, 트렌드 컴포넌트
 │   │   ├── pages/
 │   │   └── App.jsx
-│   ├── package.json
+│   └── package.json
 │
 ├── data-pipeline/            # 데이터 수집 · 정제
 │   ├── crawlers/            # Playwright 크롤러
