@@ -1,0 +1,46 @@
+{
+  "name": "AI Tech Trend RAG Prototype",
+  "description": "ChromaDB와 Gemini를 연동한 기술 트렌드 질의응답 프로토타입",
+  "nodes": [
+    {
+      "id": "chroma_node",
+      "data": {
+        "type": "Chroma",
+        "node": {
+          "collection_name": "tech_articles",
+          "persist_directory": "c:\\Users\\User\\Desktop\\ai-trend-insight\\backend\\chroma_db"
+        }
+      }
+    },
+    {
+      "id": "gemini_node",
+      "data": {
+        "type": "GoogleGenerativeAI",
+        "node": {
+          "model_name": "gemini-2.0-flash",
+          "google_api_key": ""
+        }
+      }
+    },
+    {
+      "id": "embeddings_node",
+      "data": {
+        "type": "GoogleGenerativeAIEmbeddings",
+        "node": {
+          "model_name": "models/gemini-embedding-001",
+          "google_api_key": ""
+        }
+      }
+    },
+    {
+      "id": "prompt_node",
+      "data": {
+        "type": "Prompt",
+        "node": {
+          "template": "당신은 AI 기술 트렌드 분석 전문가입니다.\n다음 제공된 뉴스 기사 내용들을 참고하여 사용자의 질문에 답변하세요.\n\n질문: {question}\n\n참고 기사 내용:\n{context}\n\n답변은 한국어로 친절하게 작성하세요."
+        }
+      }
+    }
+  ],
+  "edges": []
+}

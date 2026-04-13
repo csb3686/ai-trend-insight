@@ -142,47 +142,46 @@
 ## Phase 4 — 데이터 정제 및 통계 집계 (예상: 3~4일)
 
 ### 4-1. 데이터 정제 파이프라인
-- [ ] `pipeline/processors/cleaner.py` 작성
-  - [ ] HTML 태그 제거 (BeautifulSoup)
-  - [ ] 특수문자·공백 정규화
-  - [ ] 최소 길이 필터 (50자 미만 제거)
-- [ ] `pipeline/processors/language_detector.py` 작성
-  - [ ] langdetect 또는 langid 사용
-- [ ] `pipeline/processors/processor.py` 작성
-  - [ ] `articles`(is_processed=0) → 정제 후 is_processed=1 업데이트 파이프라인
-  - [ ] 배치 처리 (한 번에 100개씩)
-  - [ ] 처리 완료 시 `articles.is_processed = 1` 업데이트
+- [x] `pipeline/processors/cleaner.py` 작성
+  - [x] HTML 태그 제거 (BeautifulSoup)
+  - [x] 특수문자·공백 정규화
+  - [x] 최소 길이 필터 (50자 미만 제거 혹은 플래그 처리)
+- [x] `pipeline/processors/language_detector.py` 작성
+  - [x] langdetect 사용
+- [x] `pipeline/processors/processor.py` 작성
+  - [x] `articles`(is_processed=0) → 정제 후 is_processed=1 업데이트 파이프라인
+  - [x] 배치 처리 (한 번에 100개씩)
+  - [x] 처리 완료 시 `articles.is_processed = 1` 업데이트 및 빈 글 필터링
 
 ### 4-2. 기술 키워드 추출
-- [ ] `pipeline/processors/keyword_extractor.py` 작성
-  - [ ] `technologies` 테이블에서 키워드 + aliases 로드
-  - [ ] 정규식 패턴 동적 생성 (대소문자 무시, 단어 경계)
-  - [ ] 기사 본문에서 키워드 매칭
-  - [ ] 매칭 결과 캐싱 (키워드 목록 변경 전까지)
-- [ ] 키워드 추출 정확도 수동 검증 (샘플 10개 기사)
+- [x] `pipeline/processors/keyword_extractor.py` 작성
+  - [x] `technologies` 테이블에서 키워드 + aliases 로드
+  - [x] 정규식 패턴 동적 생성 (대소문자 무시, 단어 경계)
+  - [x] 기사 본문에서 키워드 매칭 및 횟수 산출
+- [x] `processor.py` 연동 및 `article_technologies` 테이블 저장 로직 구현 완료
 
 ### 4-3. 트렌드 통계 집계
-- [ ] `pipeline/processors/stats_aggregator.py` 작성
-  - [ ] 일별 언급 횟수 집계 쿼리
-  - [ ] `trends` 테이블 upsert
-  - [ ] 변화율(change_rate) 계산 로직
-- [ ] 집계 스크립트 n8n Workflow 4에 연결 (매일 자정 실행)
-- [ ] 집계 결과 확인 (SQL 쿼리로 검증)
+- [x] `pipeline/processors/stats_aggregator.py` 작성
+  - [x] 월별 언급 횟수 집계 쿼리 (trends 테이블용)
+  - [x] 전월 대비 변화율(change_rate) 및 순위 계산
+- [x] 전체 데이터 기반 통계 재산출 로직 구현 및 검증 완료
+- [x] 정기 집계 스케줄러(`scheduler.py`) 연동 완료 (전처리 1h, 통계 6h)
 
 ---
 
 ## Phase 5 — 벡터 임베딩 & Chroma 저장 (예상: 2~3일)
 
 ### 5-1. 임베딩 파이프라인
-- [ ] `pipeline/embedder/text_splitter.py` 작성
-  - [ ] RecursiveCharacterTextSplitter 설정 (chunk_size=500, overlap=50)
-  - [ ] 메타데이터 포함 Document 객체 생성
-- [ ] `pipeline/embedder/embedder.py` 작성
-  - [ ] GoogleGenerativeAIEmbeddings 초기화 (`models/embedding-001`)
-  - [ ] Chroma 컬렉션 초기화 (`tech_articles`)
-  - [ ] `articles` (is_embedded=0) 기사 배치 처리
-  - [ ] 임베딩 완료 후 `is_embedded=1`, `embedding_id` 업데이트
-- [ ] Chroma DB에 임베딩 저장 확인 (컬렉션 크기 확인)
+- [x] `pipeline/embedder/text_splitter.py` 작성
+  - [x] RecursiveCharacterTextSplitter 설정 (chunk_size=500, overlap=50)
+  - [x] 메타데이터 포함 Document 객체 생성
+- [x] `pipeline/embedder/embedder.py` 작성
+  - [x] GoogleGenerativeAIEmbeddings 초기화 (`models/embedding-001`)
+  - [x] Chroma 컬렉션 초기화 (`tech_articles`)
+  - [x] `articles` (is_embedded=0) 기사 배치 처리
+  - [x] 임베딩 완료 후 `is_embedded=1` 업데이트 및 상태 관리
+- [x] 스케줄러(`scheduler.py`) 연동 및 자동 임베딩 로직 완료
+- [x] Chroma DB 저장 확인 (`backend/chroma_db` 폴더 생성 및 데이터 적재 완료)
 
 ### 5-2. Langflow 프로토타입
 - [ ] Langflow 접속 (`http://localhost:7860`)
@@ -267,12 +266,37 @@
 
 ### 7-3. 전체 흐름 통합 테스트
 - [ ] 데이터 수집 → MySQL → API → 프론트 렌더링 E2E 확인
-- [ ] RAG 챗봇 질문 → 스트리밍 응답 브라우저 확인
-- [ ] 브라우저 크로스체크 (Chrome, Firefox)
+- [ ] RAG 챗봇 질문 → 스트리밍 텍스트 응답 정상 노출 테스트
+- [ ] 크로스 브라우징 확인 (Chrome, Edge 등)
+
+---
+
+## Phase 8 — QA 자동화 테스트 및 CI 파이프라인 구축 (이력서 보너스 트랙)
+
+### 8-1. Pytest 기반 QA 테스트 자동화
+- [ ] `backend/tests/` 구조 세팅 및 `pytest` 패키지 설치
+- [ ] 수집기 단위 테스트 (RSS 통신 성공 여부 Mocking)
+- [ ] 데이터베이스 저장 포맷(무결성) 검증 테스트 로직
+- [ ] FastAPI 엔드포인트 응답 상태코드(200 OK) 자동 확인용 API 테스트 작성
+
+### 8-2. GitHub Actions 자동화 파이프라인 (CI)
+- [ ] `.github/workflows/qa-test.yml` 파일 생성
+- [ ] GitHub에 Push 하거나 Pull Request 발생 시 자동으로 봇이 구동되도록 지시
+- [ ] 클라우드 가상환경(Ubuntu) 셋업 및 Python 3.13 설치 자동화 작성
+- [ ] PR 화면에 "모든 QA 테스트 합격(초록색 체크)" 마크가 뜨도록 연동
+- [ ] README.md 에 `passing` 배지 부착
 
 ---
 
 ## 빠른 현황 체크
+- [x] Phase 1 완료 (설치 및 DB 스키마)
+- [x] Phase 2 완료 (React 퍼블리싱)
+- [x] Phase 3 완료 (수집 데이터 적재)
+- [x] Phase 4 완료 (Pandas 정제, 통계치 추출)
+- [x] Phase 5 완료 (ChromaDB 벡터 임베딩)
+- [ ] Phase 6 완료 (Gemini RAG 기반 백엔드 API 완성)
+- [ ] Phase 7 완료 (프론트/백 최종 연동)
+- [ ] Phase 8 완료 (QA 테스트 및 CI 파이프라인 통합)
 
 ```
 Phase 1  [ ] [ ] [ ]  환경 구성 & 로컬 설치
