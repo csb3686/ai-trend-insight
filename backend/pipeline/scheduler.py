@@ -10,6 +10,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from backend.pipeline.collectors.geek_news_collector import GeekNewsCollector
 from backend.pipeline.collectors.hacker_news_collector import HackerNewsCollector
 from backend.pipeline.collectors.github_trending_collector import GithubTrendingCollector
+from backend.pipeline.processors.processor import DataProcessorManager
+from backend.pipeline.processors.stats_aggregator import TrendsAggregator
+from backend.pipeline.embedder.embedder import ArticleEmbedder
 
 def job_geek_news():
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] GeekNews 수집 시작...")
@@ -26,15 +29,37 @@ def job_github_trending():
     collector = GithubTrendingCollector()
     collector.run()
 
+def job_process_data():
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 데이터 전처리(세탁 및 키워드 추출) 시작...")
+    processor = DataProcessorManager()
+    processor.process_batch()
+
+def job_aggregate_trends():
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 월별 트렌드 통계 집계 시작...")
+    aggregator = TrendsAggregator()
+    aggregator.aggregate_all()
+
+def job_embed_data():
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] AI 벡터 임베딩 시작...")
+    try:
+        embedder = ArticleEmbedder()
+        embedder.run_embedding_pipeline()
+    except Exception as e:
+        print(f"[Embedding Job Error] {e}")
+
 def main():
     print("==================================================")
     print("🚀 AI Trend Insight - Python 스케줄러(매니저) 출근 🚀")
     print("==================================================")
     
     # 스케줄 등록
-    schedule.every(1).hours.do(job_geek_news)        # 1시간마다
-    schedule.every(3).hours.do(job_hacker_news)      # 3시간마다
-    schedule.every(6).hours.do(job_github_trending)  # 6시간마다
+    schedule.every(1).hours.do(job_geek_news)        # 1시간마다 수집
+    schedule.every(3).hours.do(job_hacker_news)      # 3시간마다 수집
+    schedule.every(6).hours.do(job_github_trending)  # 6시간마다 수집
+    
+    schedule.every(1).hours.do(job_process_data)     # 1시간마다 전처리 (수집 직후 위주)
+    schedule.every(1).hours.do(job_embed_data)       # 1시간마다 AI 임베딩
+    schedule.every(6).hours.do(job_aggregate_trends) # 6시간마다 통계 갱신
     
     print("[스케줄러 설정 완료] 백그라운드 무한 대기 모드 진입...")
     print("작업을 종료하시려면 터미널 창을 클릭하고 Ctrl + C 를 누르세요.\n")

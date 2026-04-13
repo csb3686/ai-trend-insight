@@ -41,7 +41,7 @@
 
 | 영역 | 기술 |
 |------|------|
-| **데이터 수집** | n8n (npm 로컬 실행), Playwright |
+| **데이터 수집** | Python `schedule` 패키지, Playwright |
 | **LLM** | Gemini 2.0 Flash (Google Gemini API) |
 | **LLM 파이프라인** | Langflow + LangChain |
 | **RAG / Vector DB** | LangChain + Chroma (로컬 설치) |
@@ -66,7 +66,7 @@
 ## 🏗️ 아키텍처 개요
 
 ```
-[데이터 수집 - n8n]
+[데이터 수집 - Python Scheduler]
   긱뉴스 RSS / HN RSS / GitHub API
          │
          ▼
@@ -115,7 +115,7 @@ ai-trend-insight/
 ├── data-pipeline/            # 데이터 수집 · 정제
 │   ├── crawlers/            # Playwright 크롤러
 │   ├── processors/          # Pandas 정제 로직
-│   └── n8n/                 # n8n 워크플로 JSON
+│   └── scheduler.py         # 자동 수집 매니저 데몬
 │
 ├── langflow/                 # Langflow 파이프라인 설정
 │   └── flows/
@@ -137,7 +137,6 @@ ai-trend-insight/
 - Python 3.11+
 - Node.js 18+
 - MySQL 8.0 (로컬 설치)
-- n8n (`npm install -g n8n`)
 
 ### 환경 변수 설정
 
@@ -156,8 +155,9 @@ cp .env.example .env
 # 1. MySQL 로컬 서버 기동 (설치 후)
 mysql -u root -p < init.sql
 
-# 2. n8n 실행
-n8n start
+# 2. 파이썬 기반 데이터 수집 스케줄러 실행
+cd backend
+python -m pipeline.scheduler
 
 # 3. Langflow 실행
 pip install langflow
@@ -180,8 +180,7 @@ npm run dev
 |--------|-----|
 | 프론트엔드 | http://localhost:3000 |
 | FastAPI Docs | http://localhost:8000/docs |
-| n8n 워크플로 | http://localhost:5678 |
-| Langflow | http://localhost:7860 |
+| 머신러닝/RAG 파이프라인 | http://localhost:7860 (Langflow) |
 
 ---
 
@@ -191,13 +190,14 @@ npm run dev
 
 | 단계 | 내용 | 상태 |
 |------|------|------|
-| 1단계 | 환경 구성 & 로컬 서비스 설치 | 🔲 예정 |
-| 2단계 | React 프론트엔드 개발 (Mock 데이터) | 🔲 예정 |
-| 3단계 | 데이터 수집 파이프라인 | 🔲 예정 |
+| 1단계 | 환경 구성 & 로컬 서비스 설치 | ✅ 완료 |
+| 2단계 | React 프론트엔드 개발 (Mock 데이터) | ✅ 완료 |
+| 3단계 | 데이터 수집 파이프라인 | ✅ 완료 |
 | 4단계 | 데이터 정제 & MySQL 저장 | 🔲 예정 |
 | 5단계 | 벡터 임베딩 & Chroma 저장 | 🔲 예정 |
 | 6단계 | FastAPI 백엔드 & RAG 챗봇 (Gemini) | 🔲 예정 |
 | 7단계 | 프론트엔드 실제 API 연결 | 🔲 예정 |
+| 8단계 | QA 자동화 및 CI 파이프라인 (GitHub Actions) | 🔲 예정 |
 
 > 상세 계획 → [PLAN.md](./PLAN.md)  
 > 개발 체크리스트 → [TODO.md](./TODO.md)

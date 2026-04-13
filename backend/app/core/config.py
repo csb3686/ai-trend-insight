@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     # ========================
     chroma_host: str = "localhost"
     chroma_port: int = 8001
+    chroma_storage_path: str = "chroma_storage"  # 로컬 저장소 폴더명
 
     # ========================
     # n8n 워크플로 서비스
@@ -81,8 +82,8 @@ class Settings(BaseSettings):
         return f"http://{self.langflow_host}:{self.langflow_port}"
 
     class Config:
-        # 프로젝트 루트의 .env 파일을 자동으로 읽습니다
-        env_file = "../../.env"
+        # 프로젝트 루트(backend 폴더의 상위)의 .env 파일을 자동으로 읽습니다
+        env_file = "../.env"
         env_file_encoding = "utf-8"
         case_sensitive = False  # 대소문자 구분 없이 환경변수 매핑
 
