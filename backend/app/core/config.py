@@ -16,9 +16,14 @@ class Settings(BaseSettings):
     """
 
     # ========================
-    # Google Gemini API
+    # Google Gemini API (Embedding용)
     # ========================
     gemini_api_key: str
+
+    # ========================
+    # Groq API (LLM용)
+    # ========================
+    groq_api_key: str
 
     # ========================
     # GitHub API
@@ -82,8 +87,10 @@ class Settings(BaseSettings):
         return f"http://{self.langflow_host}:{self.langflow_port}"
 
     class Config:
-        # 프로젝트 루트(backend 폴더의 상위)의 .env 파일을 자동으로 읽습니다
-        env_file = "../.env"
+        # 현재 파일(config.py) 위치를 기준으로 프로젝트 루트의 .env 파일을 동적으로 찾습니다.
+        import os
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+        env_file = os.path.join(base_dir, ".env")
         env_file_encoding = "utf-8"
         case_sensitive = False  # 대소문자 구분 없이 환경변수 매핑
 

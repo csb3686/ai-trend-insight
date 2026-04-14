@@ -193,11 +193,10 @@ n8n 워크플로와 Playwright 크롤러로 자동 데이터 수집 파이프라
    - `GET /trends/heatmap`, `GET /trends/top5`, `GET /trends/timeline`
    - `GET /articles`, `GET /articles/{id}`, `GET /articles/search`
 
-3. **RAG 챗봇 파이프라인**
-   - LangChain `GoogleGenerativeAIEmbeddings` + Chroma 리트리버
-   - `gemini-2.0-flash` LLM 연결
-   - Langflow 플로우 구성 및 JSON 저장
-   - `POST /chat/sessions/{id}/messages` (SSE 스트리밍)
+3. **RAG 챗봇 파이프라인 (Hybrid LLM)**
+   - **Embedding**: LangChain `GoogleGenerativeAIEmbeddings` (기존 DB 호환)
+   - **Answer Generation**: **Groq (Llama 3.3 70B)** 모델 적용 (초고속 실시간 응답)
+   - `POST /api/v1/chat` 구현 (ChatRequest/Response 구조)
 
 4. **관리 & 헬스체크 API**
    - `POST /admin/collect`, `POST /admin/embed`, `GET /health`

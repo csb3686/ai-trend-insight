@@ -19,10 +19,15 @@
 
 ## ✨ 핵심 기능
 
-### 1. 📊 기술 스택 히트맵
-- 이번 달 가장 많이 언급된 기술 **Top 10** 히트맵 시각화
-- 뉴스·GitHub 데이터를 통합하여 기술별 언급 빈도 집계
-- 월별 트렌드 추이 차트 제공
+### 1. 📊 지능형 데이터 하이브리드 전략
+- **Real-time + Synthetic**: 실제 크롤링 데이터와 정교한 시뮬레이션 데이터를 결합하여 데이터 밀도 극대화
+- **Weighted Scoring**: GitHub(10x)와 뉴스(1x)에 가중치를 다르게 부여하는 정밀 트렌드 분석 엔진
+- **Dynamic UX**: 404 없는 실시간 구글 뉴스/GitHub 검색 연동 링크 시스템
+
+### 2. ⚡ 데이터 수집 및 집계 아키텍처
+- **Python Native**: n8n 등 외부 도구 없이 Playwright 기반의 독립적 수집기 구축
+- **TrendsAggregator**: 전월 대비 성장률(%)을 자동 산출하는 고성능 통계 프로세서
+- **Master Sync**: 실시간 수집과 역사적 데이터 보강을 한 번에 통합하는 마스터 파이프라인
 
 ### 2. 🤖 RAG 챗봇
 - 수집된 뉴스 + GitHub 데이터 기반 벡터 검색
@@ -42,10 +47,8 @@
 | 영역 | 기술 |
 |------|------|
 | **데이터 수집** | Python `schedule` 패키지, Playwright |
-| **LLM** | Gemini 2.0 Flash (Google Gemini API) |
-| **LLM 파이프라인** | Langflow + LangChain |
-| **RAG / Vector DB** | LangChain + Chroma (로컬 설치) |
-| **임베딩** | GoogleGenerativeAIEmbeddings (`models/embedding-001`) |
+| **LLM** | **Groq (Llama 3.3 70B)** (Hyper-fast Inference) |
+| **Embedding** | Google Gemini (text-embedding-004) |
 | **데이터 정제** | Pandas |
 | **백엔드 API** | FastAPI (Python 3.11+) |
 | **프론트엔드** | React 18 + Recharts |
@@ -193,9 +196,9 @@ npm run dev
 | 1단계 | 환경 구성 & 로컬 서비스 설치 | ✅ 완료 |
 | 2단계 | React 프론트엔드 개발 (Mock 데이터) | ✅ 완료 |
 | 3단계 | 데이터 수집 파이프라인 | ✅ 완료 |
-| 4단계 | 데이터 정제 & MySQL 저장 | 🔲 예정 |
-| 5단계 | 벡터 임베딩 & Chroma 저장 | 🔲 예정 |
-| 6단계 | FastAPI 백엔드 & RAG 챗봇 (Gemini) | 🔲 예정 |
+| 4단계 | 데이터 정제 & MySQL 저장 | ✅ 완료 |
+| 5단계 | 벡터 임베딩 & Chroma 저장 | ✅ 완료 |
+| 6단계 | FastAPI 백엔드 & RAG 챗봇 (Groq Hybrid) | ✅ 완료 |
 | 7단계 | 프론트엔드 실제 API 연결 | 🔲 예정 |
 | 8단계 | QA 자동화 및 CI 파이프라인 (GitHub Actions) | 🔲 예정 |
 

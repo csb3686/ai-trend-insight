@@ -1,33 +1,56 @@
 import React from 'react';
-import { ExternalLink } from 'lucide-react';
-import { latestNewsData } from '../../mocks/dashboardData';
+import { ExternalLink, Loader2 } from 'lucide-react';
+import { useArticles } from '../../api/hooks/useArticles';
 import './NewsFeed.css';
 
 const NewsFeed: React.FC = () => {
+  const { data, isLoading, isError } = useArticles(1, 5); // 첫 페이지의 기사 5개만 가져옴
+
+  if (isLoading) {
+    return (
+      <div className="glass-panel news-panel p-8 flex-center">
+        <Loader2 className="animate-spin" size={24} color="var(--color-ai)" />
+      </div>
+    );
+  }
+
+  if (isError || !data) {
+    return <div className="glass-panel news-panel p-8 text-center text-gray-500">뉴스를 불러오지 못했습니다.</div>;
+  }
+
+  // 날짜 포맷팅 함수 (간단하게 구현)
+  const formatDate = (dateStr?: string | null) => {
+    if (!dateStr) return '날짜 정보 없음';
+    const date = new Date(dateStr);
+    return `${date.getMonth() + 1}월 ${date.getDate()}일`;
+  };
+
   return (
     <div className="glass-panel news-panel">
       <div className="section-header">
         <div>
-          <h2 className="section-title">최신 뉴스</h2>
-          <p className="section-subtitle">실시간 기술 뉴스 피드</p>
+          <h2 className="section-title">최신 소식</h2>
+          <p className="section-subtitle">실시간 기술 뉴스 및 GitHub 트렌드</p>
         </div>
         <a href="/news" className="view-all-link">전체 보기 &rarr;</a>
       </div>
 
       <div className="news-list">
-        {latestNewsData.map((news) => (
-          <a key={news.id} href={news.url} className="news-item" target="_blank" rel="noopener noreferrer">
-            <div className="news-content">
-              <h3 className="news-title">{news.title}</h3>
-              <div className="news-meta">
-                <span className={`badge ${news.category.replace('/', '-')}`}>{news.category}</span>
-                <span className="news-source">{news.source}</span>
-                <span className="news-dot">&middot;</span>
-                <span className="news-time">{news.timeAgo}</span>
+        {data.items.map((news) => (
+          <a key={news.id} href={news.url} className="news-item-modern" target="_blank" rel="noopener noreferrer">
+            <div className="news-content-row">
+              <div className="news-title-area">
+                <span className={`category-pill-mini ${news.tech_category?.toLowerCase().replace('/', '-').trim()}`}>
+                  {news.tech_category}
+                </span>
+                <h3 className="news-title-text">{news.title}</h3>
               </div>
-            </div>
-            <div className="news-action">
-              <ExternalLink size={16} color="var(--text-muted)" />
+              
+              <div className="news-meta-right">
+                <span className="news-source-small">{news.source_name}</span>
+                <span className="news-time-small">{formatDate(news.published_at || news.created_at)}</span>
+                <ExternalLink size={14} className="news-link-icon" />
+              </div>
             </div>
           </a>
         ))}

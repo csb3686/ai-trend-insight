@@ -44,13 +44,14 @@ CREATE TABLE sources (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='데이터 수집 출처';
 ```
 
-### 초기 데이터
+### 초기 데이터 (정적 ID 고정)
 
 ```sql
-INSERT INTO sources (name, type, url) VALUES
-('긱뉴스', 'rss', 'https://news.hada.io/rss'),
-('HackerNews', 'rss', 'https://hnrss.org/frontpage'),
-('GitHub Trending', 'api', 'https://api.github.com/search/repositories');
+-- ID를 1, 2, 3으로 강제 지정하여 정합성 유지
+INSERT INTO sources (id, name, type, url) VALUES
+(1, 'HackerNews', 'rss', 'https://news.ycombinator.com'),
+(2, 'GeekNews', 'rss', 'https://news.hada.io'),
+(3, 'GitHub Trending', 'crawl', 'https://github.com/trending');
 ```
 
 ---

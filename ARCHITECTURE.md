@@ -15,15 +15,15 @@
          │               │                  │
          ▼               ▼                  ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│             데이터 수집 레이어 (n8n — npm 로컬 실행)              │
+│             데이터 수집 레이어 (Python Native Pipeline)             │
 │                                                                  │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │ RSS 수집 Flow│  │ RSS 수집 Flow│  │   GitHub API Flow    │  │
-│  │  (긱뉴스)    │  │  (HN)        │  │  (Playwright 보조)   │  │
+│  │ Playwright   │  │ RSS Parser   │  │ Hybrid Generator     │  │
+│  │ (GitHub Real) │  │ (HN/Geek)    │  │ (Historical Dummy)   │  │
 │  └──────┬───────┘  └──────┬───────┘  └──────────┬───────────┘  │
 │         └──────────────────┴──────────────────────┘             │
 │                            │                                     │
-│                    HTTP POST /ingest                             │
+│                    Unified Ingest Logic                          │
 └────────────────────────────┼────────────────────────────────────┘
                              │
                              ▼
@@ -93,25 +93,19 @@
 
 ### 2-1. 데이터 수집 흐름
 
-```
-[Cron: 매일 06:00]
+[수집 파이프라인 스케줄]
       │
-      ├─→ n8n (npm 로컬): 긱뉴스 RSS 파싱
-      │         → HTTP GET https://news.hada.io/rss
-      │         → XML 파싱 (title, link, pubDate, description)
-      │         → HTTP POST http://localhost:8000/api/v1/ingest/news
+      ├─→ GitHubTrendingCollector (Playwright): 실시간 Top 25 수집
+      │         → 대상: github.com/trending
+      │         → 가중치: 10점 (High Impact Action)
       │
-      ├─→ n8n (npm 로컬): Hacker News RSS 파싱
-      │         → HTTP GET https://hnrss.org/frontpage
-      │         → XML 파싱
-      │         → HTTP POST http://localhost:8000/api/v1/ingest/news
+      ├─→ NewsCollectors (RSS Parser): HN/Geek 최신 뉴스 수집
+      │         → 대상: RSS Feed (GeekNews, HackerNews)
+      │         → 가중치: 1점 (Public Interest)
       │
-      └─→ n8n (npm 로컬): GitHub Trending API (07:00)
-                → HTTP GET https://api.github.com/search/repositories
-                  ?q=created:>2025-01-01&sort=stars&order=desc
-                → repo name, description, language, stars 추출
-                → HTTP POST http://localhost:8000/api/v1/ingest/github
-```
+      └─→ GitHubMasterSync & HybridGenerator: 역사적 데이터 보강
+                → 대상: 2~4월 유명 레포 및 뉴스 450여 개 보강
+                → 링크: 구글 뉴스 및 GitHub 검색 결과 다이나믹 연동
 
 ### 2-2. 데이터 처리 흐름
 

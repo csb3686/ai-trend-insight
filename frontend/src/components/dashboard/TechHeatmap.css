@@ -40,65 +40,105 @@
   border-radius: 50%;
 }
 
-.legend-dot.ai, .heatmap-item.ai { background-color: var(--color-ai); }
-.legend-dot.frontend, .heatmap-item.frontend { background-color: var(--color-frontend); }
-.legend-dot.devops, .heatmap-item.devops { background-color: var(--color-devops); }
-.legend-dot.backend, .heatmap-item.backend { background-color: var(--color-backend); }
-.legend-dot.data, .heatmap-item.data { background-color: var(--color-data); }
+.legend-dot.ai, .heatmap-item.ai { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.legend-dot.frontend, .heatmap-item.frontend { background: linear-gradient(135deg, #10b981, #059669); }
+.legend-dot.devops, .heatmap-item.devops { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.legend-dot.backend, .heatmap-item.backend { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.legend-dot.data, .heatmap-item.data { background: linear-gradient(135deg, #f43f5e, #e11d48); }
+.legend-dot.language, .heatmap-item.language { background: linear-gradient(135deg, #6366f1, #4f46e5); }
 
 .heatmap-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 120px;
-  gap: 1rem;
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1.5rem;
 }
 
 .heatmap-item {
   border-radius: 12px;
-  padding: 1.25rem;
+  padding: 1rem;
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: transform 0.2s ease, filter 0.2s ease;
+  transition: all 0.2s ease;
   cursor: pointer;
+  min-height: 180px;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .heatmap-item:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
+  transform: translateY(-4px) scale(1.02);
+  filter: brightness(1.2);
+  z-index: 10;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
 }
 
-/* 1위는 2칸 차지 */
-.heatmap-item.large {
-  grid-column: span 2;
-}
-
-/* 2위도 상황에 따라 조절 가능, 지금은 2칸 차지 */
-.heatmap-item.medium {
-  grid-column: span 2;
-}
-
-.heatmap-name {
+.card-rank {
+  font-size: 0.75rem;
   font-weight: 700;
-  font-size: 1.125rem;
-}
-
-.heatmap-value {
-  font-size: 1.5rem;
-  font-weight: 800;
-  margin-top: 0.25rem;
-}
-
-.heatmap-unit {
-  font-size: 0.75rem;
-  font-weight: 400;
   opacity: 0.8;
+  text-align: left;
 }
 
-.heatmap-category {
-  font-size: 0.75rem;
-  font-weight: 600;
-  margin-top: auto;
+.card-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.tech-name-large {
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin: 0;
+  letter-spacing: -0.03em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mention-stats-center {
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
   opacity: 0.9;
 }
+
+.mention-value-small {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.mention-unit-small {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.card-footer-tag {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.category-pill {
+  font-size: 0.688rem;
+  font-weight: 700;
+  padding: 0.25rem 0.625rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 99px;
+  backdrop-filter: blur(4px);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* 카테고리별 기본 색상 (Opacity는 JSX에서 조절) */
+.heatmap-item.ai { background-color: #3b82f6; }
+.heatmap-item.frontend { background-color: #10b981; }
+.heatmap-item.devops { background-color: #c2780e; } /* 오렌지/갈색 계열로 조정 */
+.heatmap-item.backend { background-color: #8b5cf6; }
+.heatmap-item.data { background-color: #f43f5e; }
+.heatmap-item.language { background-color: #6366f1; }
