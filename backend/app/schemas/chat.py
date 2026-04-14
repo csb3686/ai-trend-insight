@@ -16,3 +16,4 @@ class HealthCheck(BaseModel):
     status: str
     database: str
     timestamp: datetime
+    gemini_models: Optional[List[str]] = []

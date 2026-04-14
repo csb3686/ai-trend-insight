@@ -1,9 +1,48 @@
-import React, { useState } from 'react';
-import { MessageSquare, X, Send } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { MessageSquare, X, Send, Loader2 } from 'lucide-react';
+import { useChatMutation } from '../../api/hooks/useChat';
 import './ChatWidget.css';
+
+interface Message {
+  role: 'user' | 'ai';
+  content: string;
+}
 
 const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [inputText, setInputText] = useState('');
+  const [messages, setMessages] = useState<Message[]>([
+    { role: 'ai', content: '안녕하세요! TrendRadar AI 어시스턴트입니다. 요즘 뜨는 기술이나 특정 뉴스에 대해 궁금한 점이 있으신가요?' }
+  ]);
+  
+  const chatBodyRef = useRef<HTMLDivElement>(null);
+  const chatMutation = useChatMutation();
+
+  // 메시지 추가 시 자동 스크롤
+  useEffect(() => {
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!inputText.trim() || chatMutation.isPending) return;
+
+    const userMsg = inputText.trim();
+    setInputText('');
+    setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+
+    try {
+      const response = await chatMutation.mutateAsync({ message: userMsg });
+      setMessages(prev => [...prev, { role: 'ai', content: response.answer }]);
+    } catch (error) {
+      setMessages(prev => [...prev, { role: 'ai', content: '죄송합니다. 답변을 생성하는 도중 오류가 발생했습니다.' }]);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSend();
+  };
 
   return (
     <div className="chat-widget-container">
@@ -19,23 +58,32 @@ const ChatWidget: React.FC = () => {
             </button>
           </div>
           
-          <div className="chat-body">
-            <div className="chat-message ai">
-              안녕하세요! 무엇을 도와드릴까요? 특정 기술의 트렌드나 요약을 물어보세요.
-            </div>
-            {/* 임시 더미 메시지 */}
-            <div className="chat-message user">
-              요즘 React 서버 컴포넌트가 왜 뜨는거야?
-            </div>
-            <div className="chat-message ai">
-              React 서버 컴포넌트(RSC)는 초기 로딩 속도 최적화와 번들 사이즈 감소, 그리고 SEO 향상 등의 장점 때문에 최근 많은 개발자들의 주목을 받고 있습니다. Next.js 13 이상에서 이 패턴을 적극 채택하면서 도입이 가속화되었습니다.
-            </div>
+          <div className="chat-body" ref={chatBodyRef}>
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`chat-message ${msg.role}`}>
+                {msg.content}
+              </div>
+            ))}
+            {chatMutation.isPending && (
+              <div className="chat-message ai flex items-center gap-2">
+                <Loader2 size={16} className="animate-spin" />
+                답변을 생각 중입니다...
+              </div>
+            )}
           </div>
 
           <div className="chat-input-area">
-            <input type="text" placeholder="질문을 입력하세요..." className="chat-input" />
-            <button className="send-btn">
-              <Send size={18} />
+            <input 
+              type="text" 
+              placeholder="질문을 입력하세요..." 
+              className="chat-input"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyPress={handleKeyPress}
+              disabled={chatMutation.isPending}
+            />
+            <button className="send-btn" onClick={handleSend} disabled={chatMutation.isPending}>
+              {chatMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
             </button>
           </div>
         </div>
