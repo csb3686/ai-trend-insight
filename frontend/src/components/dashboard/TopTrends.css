@@ -24,13 +24,14 @@
 }
 
 .trend-rank-hero {
-  font-size: 2.25rem;
+  font-size: 1.5rem; /* 2.25rem에서 적절히 조절 */
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.07);
-  font-family: 'JetBrains Mono', monospace;
+  color: var(--color-ai); /* AI 테마 색상으로 더욱 강조 */
+  font-family: 'Pretendard', sans-serif;
   line-height: 1;
-  min-width: 3rem;
+  min-width: 3.5rem;
   text-align: center;
+  text-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 
 .trend-content-main {
@@ -52,19 +53,24 @@
 
 .category-pill-small {
   font-size: 0.625rem;
-  font-weight: 800;
-  padding: 0.125rem 0.5rem;
+  font-weight: 950; /* 글자를 아주 굵게 */
+  padding: 0.2rem 0.5rem;
   border-radius: 4px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
+  background-color: #ffffff !important; /* 배경은 흰색 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* 카테고리 배지 컬러 (유지 및 고도화) */
-.category-pill-small.ai-ml { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
-.category-pill-small.frontend { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-.category-pill-small.devops { background: rgba(194, 120, 14, 0.15); color: #fbbf24; }
-.category-pill-small.backend { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
-.category-pill-small.data { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
+/* 카테고리별 '글자 색상' 범례와 100% 동기화 */
+.category-pill-small.ai-ml, .category-pill-small.ai_ml { color: #3b82f6 !important; }
+.category-pill-small.frontend { color: #10b981 !important; }
+.category-pill-small.devops { color: #f59e0b !important; }
+.category-pill-small.backend { color: #8b5cf6 !important; }
+.category-pill-small.data { color: #f43f5e !important; }
+.category-pill-small.language { color: #6366f1 !important; }
+.category-pill-small.framework { color: #06b6d4 !important; }
+.category-pill-small.cloud, .category-pill-small.infrastructure { color: #0ea5e9 !important; }
 
 .trend-one-liner {
   font-size: 0.813rem;

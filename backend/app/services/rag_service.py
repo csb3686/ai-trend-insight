@@ -6,15 +6,16 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from app.core.config import get_settings
 
+from app.core.embedding_utils import GoogleDirectEmbeddings
+
 settings = get_settings()
 
 class RAGService:
     def __init__(self):
-        # 1. 임베딩 모델 설정 (Gemini 계속 사용)
-        # 이미 이 모델로 DB가 구축되어 있으므로 변경하지 않습니다.
-        self.embeddings = GoogleGenerativeAIEmbeddings(
-            model="models/gemini-embedding-2-preview",
-            google_api_key=settings.gemini_api_key
+        # 1. 커스텀 임베딩 모델 설정 (사용자 가용 모델 gemini-embedding-001 사용)
+        self.embeddings = GoogleDirectEmbeddings(
+            model="gemini-embedding-001",
+            api_key=settings.gemini_api_key
         )
         
         # 2. 벡터 DB 연결

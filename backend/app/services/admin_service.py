@@ -112,4 +112,86 @@ class AdminService:
         finally:
             db.close()
 
+    # --- 신규 기술 승인 관리 로직 ---
+
+    def get_pending_technologies(self, db: Session) -> List[Dict]:
+        """승인 대기 중인 신기술 목록을 조회합니다."""
+        sql = text("SELECT id, name, category, description, created_at FROM pending_technologies WHERE status = 'pending' ORDER BY created_at DESC")
+        result = db.execute(sql).fetchall()
+        return [dict(row._mapping) for row in result]
+
+    def approve_technology(self, db: Session, pending_id: int):
+        """신규 기술을 승인하여 정식 기술 풀(technologies)에 등록합니다."""
+        # 1. 정보 가져오기
+        sql_select = text("SELECT name, category, description FROM pending_technologies WHERE id = :id")
+        pending = db.execute(sql_select, {"id": pending_id}).fetchone()
+        
+        if not pending:
+            return False
+            
+        try:
+            # 2. 정식 테이블에 삽입
+            sql_insert = text("""
+                INSERT INTO technologies (name, category, description, is_active)
+                VALUES (:name, :category, :description, 1)
+                ON DUPLICATE KEY UPDATE is_active = 1
+            """)
+            db.execute(sql_insert, {
+                "name": pending.name,
+                "category": pending.category,
+                "description": pending.description
+            })
+            
+            # 3. 대기열에서 삭제 (또는 상태 변경)
+            sql_delete = text("DELETE FROM pending_technologies WHERE id = :id")
+            db.execute(sql_delete, {"id": pending_id})
+            
+            db.commit()
+            return True
+        except Exception as e:
+            db.rollback()
+            raise e
+
+    def reject_technology(self, db: Session, pending_id: int):
+        """신규 기술 후보를 거절하여 대기열에서 삭제합니다."""
+        try:
+            sql_delete = text("DELETE FROM pending_technologies WHERE id = :id")
+            db.execute(sql_delete, {"id": pending_id})
+            db.commit()
+            return True
+        except Exception as e:
+            db.rollback()
+            raise e
+
+    def get_embedding_stats(self, db: Session) -> Dict:
+        """임베딩(AI 학습) 진행률 통계 조회"""
+        sql = text("""
+            SELECT 
+                COUNT(*) as total, 
+                SUM(CASE WHEN is_embedded = 1 THEN 1 ELSE 0 END) as embedded 
+            FROM articles
+        """)
+        result = db.execute(sql).fetchone()
+        
+        total = result[0]
+        embedded = result[1] or 0
+        percent = (embedded / total * 100) if total > 0 else 0
+        
+        return {
+            "total": total,
+            "embedded": embedded,
+            "percent": round(percent, 1)
+        }
+
+    def reset_vector_db(self, db: Session):
+        """벡터 DB의 학습 상태를 초기화 (모든 데이터를 다시 임베딩 대기 상태로 변경)"""
+        try:
+            sql = text("UPDATE articles SET is_embedded = 0")
+            db.execute(sql)
+            db.commit()
+            return {"message": "데이터베이스 임베딩 상태가 리셋되었습니다. 이제 [AI 임베딩] 버튼을 눌러 새 모델로 다시 학습시키세요."}
+        except Exception as e:
+            db.rollback()
+            raise e
+
 admin_service = AdminService()

@@ -36,20 +36,27 @@
 }
 
 .category-pill-mini {
-  font-size: 0.625rem;
-  font-weight: 800;
-  padding: 0.125rem 0.375rem;
+  font-size: 0.55rem;
+  font-weight: 950; /* 글자를 아주 굵게 */
+  padding: 0.15rem 0.4rem;
   border-radius: 4px;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
   flex-shrink: 0;
+  background-color: #ffffff !important; /* 배경은 흰색 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* 카테고리 배지 컬러 (기존 시스템과 동일) */
-.category-pill-mini.ai-ml { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
-.category-pill-mini.frontend { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-.category-pill-mini.devops { background: rgba(194, 120, 14, 0.15); color: #fbbf24; }
-.category-pill-mini.backend { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
-.category-pill-mini.data { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
+/* 카테고리별 '글자 색상' 범례와 100% 동기화 */
+.category-pill-mini.ai-ml, .category-pill-mini.ai_ml { color: #3b82f6 !important; }
+.category-pill-mini.frontend { color: #10b981 !important; }
+.category-pill-mini.devops { color: #f59e0b !important; }
+.category-pill-mini.backend { color: #8b5cf6 !important; }
+.category-pill-mini.data { color: #f43f5e !important; }
+.category-pill-mini.language { color: #6366f1 !important; }
+.category-pill-mini.framework { color: #06b6d4 !important; }
+.category-pill-mini.others, .category-pill-mini.other { color: #4b5563 !important; }
+.category-pill-mini.cloud { color: #0ea5e9 !important; }
 
 .news-title-text {
   font-size: 0.938rem;

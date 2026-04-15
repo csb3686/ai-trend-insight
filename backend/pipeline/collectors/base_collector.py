@@ -54,13 +54,16 @@ class BaseCollector:
             return True # 저장 성공
 
     def log_collection(self, items_collected, status="success", error_message=None):
-        """수집 이력 남기기"""
+        """수집 이력 남기기 (Cockpit 2.0 규격 대응)"""
+        # status 값을 SUCCESS/FAIL로 변환
+        final_status = "SUCCESS" if status.lower() == "success" else "FAIL"
+        
         with self.conn.cursor() as cursor:
             sql = """
-            INSERT INTO collection_logs (source_id, item_count, status, error_msg, finished_at)
-            VALUES (%s, %s, %s, %s, NOW())
+            INSERT INTO collection_logs (task_type, source_id, collected_count, status, error_message, end_time, triggered_by)
+            VALUES ('COLLECT', %s, %s, %s, %s, NOW(), 'scheduler')
             """
-            cursor.execute(sql, (self.source_id, items_collected, status, error_message))
+            cursor.execute(sql, (self.source_id, items_collected, final_status, error_message))
 
     def close(self):
         if self.conn:
