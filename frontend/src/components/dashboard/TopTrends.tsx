@@ -38,7 +38,7 @@ const TopTrends: React.FC = () => {
 
           return (
             <div key={trend.name} className="trend-card-new">
-              <div className="trend-rank-hero">{String(index + 1).padStart(2, '0')}</div>
+              <div className="trend-rank-hero">{index + 1}위</div>
               
               <div className="trend-content-main">
                 <div className="trend-header-row">

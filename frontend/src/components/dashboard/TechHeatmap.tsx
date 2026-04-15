@@ -3,7 +3,11 @@ import { Loader2 } from 'lucide-react';
 import { useTrendHeatmap } from '../../api/hooks/useTrends';
 import './TechHeatmap.css';
 
-const TechHeatmap: React.FC = () => {
+interface Props {
+  isAdmin?: boolean;
+}
+
+const TechHeatmap: React.FC<Props> = ({ isAdmin }) => {
   const { data: heatmapRes, isLoading, isError } = useTrendHeatmap();
 
   if (isLoading) {
@@ -25,17 +29,23 @@ const TechHeatmap: React.FC = () => {
     <div className="section-container glass-panel">
       <div className="section-header">
         <div>
-          <h2 className="section-title">기술 스택 히트맵</h2>
+          <div className="title-row">
+            <h2 className="section-title">기술 스택 히트맵</h2>
+            {isAdmin && <span className="admin-status-badge">🛡️ ADMIN MODE</span>}
+          </div>
           <p className="section-subtitle">
-            {heatmapRes.year}년 {heatmapRes.month}월 가장 많이 언급된 기술 Top 10
+            {heatmapRes.year || new Date().getFullYear()}년 {heatmapRes.month || new Date().getMonth() + 1}월 가장 많이 언급된 기술 Top 10
           </p>
         </div>
         <div className="legend-container">
           <div className="legend-item"><span className="legend-dot ai"></span>AI/ML</div>
           <div className="legend-item"><span className="legend-dot frontend"></span>Frontend</div>
-          <div className="legend-item"><span className="legend-dot devops"></span>DevOps</div>
           <div className="legend-item"><span className="legend-dot backend"></span>Backend</div>
+          <div className="legend-item"><span className="legend-dot devops"></span>DevOps</div>
           <div className="legend-item"><span className="legend-dot data"></span>Data</div>
+          <div className="legend-item"><span className="legend-dot language"></span>Language</div>
+          <div className="legend-item"><span className="legend-dot framework"></span>Framework</div>
+          <div className="legend-item"><span className="legend-dot other"></span>OTHERS</div>
         </div>
       </div>
 
@@ -46,11 +56,13 @@ const TechHeatmap: React.FC = () => {
           const categoryLower = tech.category.toLowerCase().trim();
           
           if (categoryLower === 'ai/ml' || categoryLower === 'ai_ml' || categoryLower.includes('ai')) className += " ai";
-          if (categoryLower.includes('frontend')) className += " frontend";
-          if (categoryLower.includes('backend')) className += " backend";
-          if (categoryLower.includes('devops')) className += " devops";
-          if (categoryLower.includes('data')) className += " data";
-          if (categoryLower.includes('language')) className += " language";
+          else if (categoryLower.includes('frontend')) className += " frontend";
+          else if (categoryLower.includes('backend')) className += " backend";
+          else if (categoryLower.includes('devops')) className += " devops";
+          else if (categoryLower.includes('data') || categoryLower.includes('database')) className += " data";
+          else if (categoryLower.includes('language')) className += " language";
+          else if (categoryLower.includes('framework')) className += " framework";
+          else className += " other"; // 위 도메인에 해당하지 않으면 기타(다크그레이) 처리
 
           // 순위 기반 농도 조절 (1위가 1.0, 10위로 갈수록 옅어짐)
           const opacity = 1.0 - (index * 0.07); // 0.3 ~ 1.0 범위 조절

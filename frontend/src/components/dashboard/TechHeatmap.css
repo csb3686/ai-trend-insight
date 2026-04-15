@@ -46,6 +46,8 @@
 .legend-dot.backend, .heatmap-item.backend { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
 .legend-dot.data, .heatmap-item.data { background: linear-gradient(135deg, #f43f5e, #e11d48); }
 .legend-dot.language, .heatmap-item.language { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+.legend-dot.framework, .heatmap-item.framework { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+.legend-dot.other, .heatmap-item.other { background: linear-gradient(135deg, #94a3b8, #64748b); } /* 선명한 실버 그레이로 개선 */
 
 .heatmap-grid {
   display: grid !important;
@@ -125,15 +127,29 @@
 }
 
 .category-pill {
-  font-size: 0.688rem;
-  font-weight: 700;
-  padding: 0.25rem 0.625rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 99px;
-  backdrop-filter: blur(4px);
+  font-size: 0.625rem;
+  font-weight: 950; /* 글자를 아주 굵게 */
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
+  /* 박스 배경은 깔끔한 흰색으로 고정 */
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  display: inline-block;
+  opacity: 1 !important;
+  border: none;
 }
+
+/* 카테고리별 '글자 색상'을 범례와 100% 일치시킴 */
+.heatmap-item.ai .category-pill { color: #3b82f6 !important; }
+.heatmap-item.frontend .category-pill { color: #10b981 !important; }
+.heatmap-item.devops .category-pill { color: #f59e0b !important; }
+.heatmap-item.backend .category-pill { color: #8b5cf6 !important; }
+.heatmap-item.data .category-pill { color: #f43f5e !important; }
+.heatmap-item.language .category-pill { color: #6366f1 !important; }
+.heatmap-item.framework .category-pill { color: #06b6d4 !important; }
+.heatmap-item.other .category-pill { color: #4b5563 !important; }
 
 /* 카테고리별 기본 색상 (Opacity는 JSX에서 조절) */
 .heatmap-item.ai { background-color: #3b82f6; }
@@ -142,3 +158,30 @@
 .heatmap-item.backend { background-color: #8b5cf6; }
 .heatmap-item.data { background-color: #f43f5e; }
 .heatmap-item.language { background-color: #6366f1; }
+
+/* 관리자 모드 배지 스타일 */
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.admin-status-badge {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #3b82f6;
+  padding: 0.2rem 0.5rem;
+  border-radius: 20px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+  letter-spacing: 0.05em;
+  animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+  0% { border-color: rgba(59, 130, 246, 0.3); }
+  50% { border-color: rgba(59, 130, 246, 0.8); }
+  100% { border-color: rgba(59, 130, 246, 0.3); }
+}

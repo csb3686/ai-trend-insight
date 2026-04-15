@@ -2,12 +2,12 @@ import os
 import sys
 import pymysql
 from dotenv import load_dotenv
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import Chroma
 
 # 경로 설정 (모듈 임포트를 위해)
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
 
+from backend.app.core.embedding_utils import GoogleDirectEmbeddings
 from backend.pipeline.embedder.text_splitter import ArticleTextSplitter
 
 # .env 로드
@@ -23,14 +23,14 @@ class ArticleEmbedder:
         self.db_password = os.getenv('MYSQL_PASSWORD', 'root')
         self.db_name = os.getenv('MYSQL_DATABASE', 'ai_trend')
         
-        # 2. 임베딩 모델 설정
+        # 2. 커스텀 임베딩 모델 설정 (v1 정식 버전 직접 호출 - gemini-embedding-001)
         self.api_key = os.getenv('GEMINI_API_KEY')
         if not self.api_key:
             raise ValueError("GEMINI_API_KEY가 .env 파일에 설정되어 있지 않습니다.")
             
-        self.embeddings = GoogleGenerativeAIEmbeddings(
-            model="models/gemini-embedding-001",
-            google_api_key=self.api_key
+        self.embeddings = GoogleDirectEmbeddings(
+            model="gemini-embedding-001",
+            api_key=self.api_key
         )
         
         # 3. ChromaDB 설정 (완전히 새로운 경로와 이름을 사용합니다)
@@ -51,7 +51,7 @@ class ArticleEmbedder:
             autocommit=True
         )
 
-    def run_embedding_pipeline(self, batch_size=20):
+    def run_embedding_pipeline(self, batch_size=100):
         """임베딩되지 않은 기사를 가져와 처리하는 전체 파이프라인"""
         conn = self.get_db_connection()
         try:
@@ -109,7 +109,7 @@ class ArticleEmbedder:
 
         except Exception as e:
             print(f"[Embedder Error] {e}")
-            return 0
+            raise e # 에러를 다시 던져서 Admin Log에 기록되게 합니다.
         finally:
             conn.close()
 

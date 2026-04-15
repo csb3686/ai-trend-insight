@@ -110,12 +110,19 @@ class TrendService:
         github_count = db.query(Article).filter(Article.type == 'github_repo').count()
         tech_count = db.query(Technology).filter(Technology.is_active == True).count()
         
+        # 진짜 마지막 업데이트 시간 조회 (최신 기사 기준)
+        last_article = db.query(Article).order_by(desc(Article.created_at)).first()
+        last_updated_dt = last_article.created_at if last_article else datetime.now()
+        
+        # 몇 분 전인지 계산
+        minutes_ago = int((datetime.now() - last_updated_dt).total_seconds() / 60)
+        
         return {
             "news_count": news_count,
             "github_count": github_count,
             "tech_count": tech_count,
-            "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "updated_minutes_ago": 1 # 임시값
+            "last_updated": last_updated_dt.strftime("%Y-%m-%d %H:%M"),
+            "updated_minutes_ago": minutes_ago
         }
 
 trend_service = TrendService()
