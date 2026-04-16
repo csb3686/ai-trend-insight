@@ -14,6 +14,7 @@ export type TrendHeatmapResponse = {
 };
 
 export type TrendTopItem = {
+  tech_id: number;
   name: string;
   category: string;
   change_rate: number;
@@ -35,6 +36,12 @@ export type TrendTimelineItem = {
 export type TrendTimelineResponse = {
   tech_id: number;
   name: string;
+  description: string | null;
+  rank_current?: number;
+  rank_change?: number;
+  peak_year?: number;
+  peak_month?: number;
+  peak_headline?: string;
   timeline: TrendTimelineItem[];
 };
 

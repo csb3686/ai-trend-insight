@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Shield, RefreshCw } from 'lucide-react';
 import './AdminPotentialTech.css';
 
 interface PendingTech {
@@ -19,27 +20,48 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
   const [stats, setStats] = useState<{total:number, embedded:number, percent:number} | null>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const API_BASE_URL = "http://localhost:8000/api/v1";
 
   // 시스템 통합 데이터(대기목록, 통계, 로그) 가져오기
   const fetchAdminData = async () => {
     if (!secret) return;
-    try {
-      setLoading(true);
-      const [pendingRes, statsRes, logsRes] = await Promise.all([
-        axios.get(`${API_BASE_URL}/admin/pending-tech`, { headers: { 'x-admin-token': secret } }),
-        axios.get(`${API_BASE_URL}/admin/stats`, { headers: { 'x-admin-token': secret } }),
-        axios.get(`${API_BASE_URL}/admin/collection-logs`, { headers: { 'x-admin-token': secret } })
-      ]);
-      setPendingList(pendingRes.data);
-      setStats(statsRes.data);
-      setLogs(logsRes.data);
-    } catch (err) {
-      console.error("Failed to fetch admin data", err);
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    setErrorMsg(null);
+
+    const config = { 
+      headers: { 'x-admin-token': secret },
+      timeout: 10000 
+    };
+
+    // 개별적으로 요청하여 하나가 실패해도 나머지는 표시되도록 함
+    const fetchPending = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/admin/pending-tech`, config);
+        setPendingList(res.data);
+      } catch (err: any) {
+        console.error("Pending tech fetch failed", err);
+        // 개별 에러는 콘솔에만 기록하거나 작은 표시만 남김
+      }
+    };
+
+    const fetchStats = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/admin/stats`, config);
+        setStats(res.data);
+      } catch (err: any) { console.error("Stats fetch failed", err); }
+    };
+
+    const fetchLogs = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/admin/collection-logs`, config);
+        setLogs(res.data);
+      } catch (err: any) { console.error("Logs fetch failed", err); }
+    };
+
+    await Promise.allSettled([fetchPending(), fetchStats(), fetchLogs()]);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -90,13 +112,26 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
     }
   };
 
+  // 날짜 포맷팅 함수 (MM.DD HH:mm)
+  const formatLogDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${mm}.${dd} ${hh}:${min}`;
+  };
+
   if (!secret) return null;
 
   return (
     <section className="admin-tech-section glass-panel">
       <div className="admin-dashboard-header">
         <div className="header-left">
-          <h2 className="admin-title">🛡️ 시스템 지휘 본부 (Cockpit 2.0)</h2>
+          <h2 className="admin-title">
+            <Shield className="admin-shield-icon" size={20} fill="var(--color-ai)" />
+            시스템 지휘 본부 (Cockpit 2.0)
+          </h2>
           {stats && (
             <div className="stats-mini-panel">
               <div className="stat-pill">전체 뉴스: <strong>{stats.total}</strong></div>
@@ -112,20 +147,33 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
         </div>
       </div>
 
+      {/* 실시간 상태 알림 바 (글로벌 로딩만 표시, 에러 배너는 카드 내부로 이동) */}
+      {loading && (
+        <div className="admin-loading-banner">
+          <div className="spinner-mini"></div>
+          <span>최신 데이터 동기화 중...</span>
+        </div>
+      )}
+
       <div className="admin-grid-layout">
         {/* 신기술 승인 대기열 */}
         <div className="admin-card pending-queue">
           <h3 className="card-title">🆕 신기술 승인 대기열 ({pendingList.length})</h3>
           <div className="tech-waitlist">
-            {loading ? (
+            {loading && pendingList.length === 0 ? (
               <div className="loading-state">데이터 분석 중...</div>
             ) : pendingList.length === 0 ? (
-              <p className="empty-msg">대기 중인 후보가 없습니다.</p>
+              <div className="empty-state-box">
+                <p className="empty-msg">대기 중인 후보가 없습니다.</p>
+                <p className="info-msg-sub">백엔드 응답이 지연될 수 있습니다.</p>
+              </div>
             ) : (
-              pendingList.map(tech => (
+             pendingList.map(tech => (
                 <div key={tech.id} className="tech-item-card">
                   <div className="tech-info">
-                    <span className={`category-tag ${tech.category.toLowerCase()}`}>{tech.category}</span>
+                    <span className={`category-tag ${tech.category.toLowerCase()}`}>
+                      {tech.category.replace('ai_ml', 'AI/ML').replace('_', ' ').toUpperCase()}
+                    </span>
                     <h3 className="tech-name">{tech.name}</h3>
                     <p className="tech-desc">{tech.description}</p>
                   </div>
@@ -158,19 +206,20 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
                   logs.map(log => (
                     <React.Fragment key={log.id}>
                       <tr className={`status-${log.status.toLowerCase()}`}>
-                        <td>{new Date(log.start_time).toLocaleTimeString()}</td>
-                        <td>{log.task_type}</td>
+                        <td>{formatLogDate(log.start_time)}</td>
                         <td>
-                          {log.status === 'SUCCESS' ? '✅' : '❌'}
-                          {log.status === 'FAIL' && (
-                            <button 
-                              className="btn-show-error" 
-                              onClick={() => alert(`에러 상세 내용:\n${log.error_message}`)}
-                            >
-                              🔍
-                            </button>
-                          )}
+                          {log.task_type.toUpperCase() === 'COLLECT' ? '전체 수집' :
+                           log.task_type.toUpperCase() === 'EMBED' ? 'AI 학습' :
+                           log.task_type.toUpperCase() === 'RECOMPUTE-STATS' || log.task_type.toUpperCase() === 'STATS' ? '통계 갱신' : 
+                           log.task_type.toUpperCase() === 'RESET-DB' ? '저장소 리셋' : log.task_type}
                         </td>
+                        <td>
+                          {log.status === 'SUCCESS' ? '✅' : (
+                          <div className="status-fail-row">
+                            <span>❌</span>
+                          </div>
+                        )}
+                       </td>
                       </tr>
                     </React.Fragment>
                   ))

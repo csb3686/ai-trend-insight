@@ -13,6 +13,7 @@ from backend.pipeline.collectors.github_trending_collector import GithubTrending
 from backend.pipeline.processors.processor import DataProcessorManager
 from backend.pipeline.processors.stats_aggregator import TrendsAggregator
 from backend.pipeline.embedder.embedder import ArticleEmbedder
+from backend.app.core.database import SessionLocal
 
 def job_geek_news():
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] GeekNews 수집 시작...")
@@ -30,22 +31,32 @@ def job_github_trending():
     collector.run()
 
 def job_process_data():
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 데이터 전처리(세탁 및 키워드 추출) 시작...")
-    processor = DataProcessorManager()
-    processor.process_batch()
+    """수집된 기사 데이터를 AI 분석 및 엔티티 추출"""
+    db = SessionLocal()
+    try:
+        print("--- [Scheduler] 기사 데이터 전처리 시작 ---")
+        processor = DataProcessorManager()
+        processor.process_pending_articles(db)
+        print("--- [Scheduler] 기사 데이터 전처리 완료 ---")
+    finally:
+        db.close()
+
+def job_embed_data():
+    """최신 기사들을 벡터 DB로 임베딩"""
+    db = SessionLocal()
+    try:
+        print("--- [Scheduler] AI 임베딩 작업 시작 ---")
+        embedder = ArticleEmbedder()
+        embedder.run_embedding_pipeline()
+        print("--- [Scheduler] AI 임베딩 작업 완료 ---")
+    finally:
+        db.close()
 
 def job_aggregate_trends():
+    """월별 트렌드 통계 집계 시작"""
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 월별 트렌드 통계 집계 시작...")
     aggregator = TrendsAggregator()
     aggregator.aggregate_all()
-
-def job_embed_data():
-    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] AI 벡터 임베딩 시작...")
-    try:
-        embedder = ArticleEmbedder()
-        embedder.run_embedding_pipeline()
-    except Exception as e:
-        print(f"[Embedding Job Error] {e}")
 
 def main():
     print("==================================================")

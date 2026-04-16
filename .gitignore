@@ -33,6 +33,7 @@ dist/
 *.sqlite
 *.sqlite3
 chroma-data/
+backend/chroma_storage/
 
 # ========================
 # Node.js

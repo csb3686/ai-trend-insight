@@ -490,21 +490,13 @@ DELETE /chat/sessions/{session_id}
 
 ## 4. 관리 API
 
-> 모든 관리 API는 `X-API-Key` 헤더 인증 필요
+> 모든 관리 API는 `X-Admin-Token` 헤더 인증 필요
 
 ### 4-1. 데이터 수집 수동 트리거
 
 ```
 POST /admin/collect
-```
-
-**요청 본문**
-
-```json
-{
-  "source": "geek_news",   // "geek_news" | "hacker_news" | "github" | "all"
-  "force": false           // true: 이미 수집된 데이터도 재수집
-}
+X-Admin-Token: {admin_token}
 ```
 
 **응답 예시**
@@ -513,10 +505,7 @@ POST /admin/collect
 {
   "success": true,
   "data": {
-    "log_id": 42,
-    "source": "geek_news",
-    "status": "started",
-    "started_at": "2025-01-15T09:00:00+09:00"
+    "message": "데이터 수집 작업이 백그라운드에서 시작되었습니다."
   }
 }
 ```
@@ -527,30 +516,17 @@ POST /admin/collect
 
 ```
 POST /admin/embed
+X-Admin-Token: {admin_token}
 ```
 
-**요청 본문**
+**응답 예시**
 
 ```json
 {
-  "force_reembed": false,   // true: 이미 임베딩된 기사도 재처리
-  "limit": 100              // 이번 실행에서 처리할 최대 기사 수
-}
-```
-
----
-
-### 4-3. 트렌드 통계 재집계
-
-```
-POST /admin/recompute-stats
-```
-
-**요청 본문**
-
-```json
-{
-  "target_month": "2025-01"   // YYYY-MM, null이면 이번 달
+  "success": true,
+  "data": {
+    "message": "벡터 임베딩 작업이 백그라운드에서 시작되었습니다."
+  }
 }
 ```
 
@@ -560,16 +536,26 @@ POST /admin/recompute-stats
 
 ```
 GET /admin/collection-logs
+X-Admin-Token: {admin_token}
 ```
 
-**쿼리 파라미터**
+**응답 예시**
 
-| 파라미터 | 타입 | 기본값 | 설명 |
-|----------|------|--------|------|
-| `source` | string | `all` | 소스 필터 |
-| `status` | string | `all` | `started` \| `success` \| `failed` |
-| `page` | int | `1` | 페이지 번호 |
-| `limit` | int | `50` | 최대 항목 수 |
+```json
+[
+  {
+    "id": 42,
+    "task_type": "COLLECT",
+    "source_id": 2,
+    "status": "SUCCESS",
+    "collected_count": 50,
+    "processed_count": 48,
+    "start_time": "2025-01-15T09:00:00",
+    "end_time": "2025-01-15T09:02:00",
+    "error_message": null
+  }
+]
+```
 
 ---
 
@@ -581,36 +567,22 @@ GET /admin/collection-logs
 GET /health
 ```
 
-**응답**
-
-```json
-{
-  "status": "ok",
-  "version": "1.0.0",
-  "timestamp": "2025-01-15T09:00:00+09:00"
-}
-```
-
-### 5-2. 상세 헬스체크
+### 5-2. 상세 헬스체크 (관리자용)
 
 ```
 GET /health/detail
+X-Admin-Token: {admin_token}
 ```
 
-**응답**
+**응답 예시**
 
 ```json
 {
   "status": "ok",
-  "services": {
-    "mysql": { "status": "ok", "latency_ms": 3 },
-    "chroma": { "status": "ok", "latency_ms": 12 },
-    "gemini": { "status": "ok", "latency_ms": 245 }
-  },
-  "stats": {
-    "total_articles": 12483,
-    "embedded_articles": 12100,
-    "last_collection": "2025-01-15T08:00:00+09:00"
+  "components": {
+    "mysql": { "status": "ok", "latency_ms": 3.2 },
+    "chromadb": { "status": "ok", "latency_ms": 15.1 },
+    "llm_gemini": { "status": "ok", "latency_ms": 250.0 }
   }
 }
 ```

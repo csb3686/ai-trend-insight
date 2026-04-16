@@ -28,10 +28,20 @@ def get_collection_logs(limit: int = 20, db: Session = Depends(get_db)):
 
 # --- 신기술 승인 관리 API ---
 
-@router.get("/admin/pending-tech", tags=["Admin"], dependencies=[Depends(verify_admin_token)])
-def get_pending_tech(db: Session = Depends(get_db)):
-    """AI가 감지한 신기술 승인 대기 목록을 조회합니다."""
+@router.get("/admin/pending-tech")
+def get_pending(db: Session = Depends(get_db)):
+    print("--- [DEBUG] GET /admin/pending-tech 진입 ---")
     return admin_service.get_pending_technologies(db)
+
+@router.get("/admin/stats")
+def get_stats(db: Session = Depends(get_db)):
+    print("--- [DEBUG] GET /admin/stats 진입 ---")
+    return admin_service.get_embedding_stats(db)
+
+@router.get("/admin/collection-logs")
+def get_logs(db: Session = Depends(get_db)):
+    print("--- [DEBUG] GET /admin/collection-logs 진입 ---")
+    return admin_service.get_collection_logs(db)
 
 @router.post("/admin/approve-tech/{id}", tags=["Admin"], dependencies=[Depends(verify_admin_token)])
 def approve_pending_tech(id: int, db: Session = Depends(get_db)):

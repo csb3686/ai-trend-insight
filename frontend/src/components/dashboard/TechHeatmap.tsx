@@ -5,9 +5,10 @@ import './TechHeatmap.css';
 
 interface Props {
   isAdmin?: boolean;
+  onTechClick: (techId: number) => void;
 }
 
-const TechHeatmap: React.FC<Props> = ({ isAdmin }) => {
+const TechHeatmap: React.FC<Props> = ({ isAdmin, onTechClick }) => {
   const { data: heatmapRes, isLoading, isError } = useTrendHeatmap();
 
   if (isLoading) {
@@ -31,7 +32,6 @@ const TechHeatmap: React.FC<Props> = ({ isAdmin }) => {
         <div>
           <div className="title-row">
             <h2 className="section-title">기술 스택 히트맵</h2>
-            {isAdmin && <span className="admin-status-badge">🛡️ ADMIN MODE</span>}
           </div>
           <p className="section-subtitle">
             {heatmapRes.year || new Date().getFullYear()}년 {heatmapRes.month || new Date().getMonth() + 1}월 가장 많이 언급된 기술 Top 10
@@ -71,7 +71,8 @@ const TechHeatmap: React.FC<Props> = ({ isAdmin }) => {
             <div 
               key={tech.tech_id} 
               className={className}
-              style={{ opacity: opacity }}
+              style={{ opacity: opacity, cursor: 'pointer' }}
+              onClick={() => onTechClick(tech.tech_id)}
             >
               <div className="card-rank">{index + 1}위</div>
               
@@ -84,7 +85,9 @@ const TechHeatmap: React.FC<Props> = ({ isAdmin }) => {
               </div>
 
               <div className="card-footer-tag">
-                <span className="category-pill">{tech.category}</span>
+                <span className="category-pill">
+                  {tech.category.replace('ai_ml', 'AI/ML').replace('_', ' ').toUpperCase()}
+                </span>
               </div>
             </div>
           );

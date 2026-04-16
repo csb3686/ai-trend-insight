@@ -10,7 +10,11 @@ settings = get_settings()
 engine = create_engine(
     settings.mysql_url, 
     pool_pre_ping=True,
-    echo=False  # SQL 로그 출력 여부 (개발 시 True로 변경 가능)
+    echo=False,
+    pool_size=10,        # 기본 연결 수 확대
+    max_overflow=20,     # 최대 초과 허용 연결 수
+    pool_timeout=10,     # 연결 대기 시간 10초 제한
+    connect_args={"connect_timeout": 5}
 )
 
 # 세션 팩토리 생성
