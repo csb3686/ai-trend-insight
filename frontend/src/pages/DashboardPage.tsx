@@ -6,6 +6,7 @@ import TechHeatmap from '../components/dashboard/TechHeatmap';
 import TopTrends from '../components/dashboard/TopTrends';
 import NewsFeed from '../components/dashboard/NewsFeed';
 import AdminPotentialTech from '../components/dashboard/AdminPotentialTech';
+import TechDetailModal from '../components/dashboard/TechDetailModal';
 import './DashboardPage.css';
 
 const DashboardPage: React.FC = () => {
@@ -23,17 +24,30 @@ const DashboardPage: React.FC = () => {
     }
   }, [searchParams]);
 
+  const [selectedTechId, setSelectedTechId] = useState<number | null>(null);
+  const [modalMode, setModalMode] = useState<'standard' | 'growth'>('standard');
+
+  const handleOpenStandard = (techId: number) => {
+    setModalMode('standard');
+    setSelectedTechId(techId);
+  };
+
+  const handleOpenGrowth = (techId: number) => {
+    setModalMode('growth');
+    setSelectedTechId(techId);
+  };
+
   return (
     <div className="app-container">
       <div className="main-content page-container">
-        <Header />
+        <Header isAdmin={isAdmin} />
         
         <main>
           <StatCards />
-          <TechHeatmap isAdmin={isAdmin} />
+          <TechHeatmap isAdmin={isAdmin} onTechClick={handleOpenStandard} />
           
           <div className="dashboard-bottom-grid">
-            <TopTrends />
+            <TopTrends onTechClick={handleOpenGrowth} />
             <NewsFeed />
           </div>
 
@@ -41,6 +55,13 @@ const DashboardPage: React.FC = () => {
           {isAdmin && <AdminPotentialTech secret={ADMIN_SECRET} />}
         </main>
       </div>
+
+      {/* [최상위 레이어] 기술 상세 딥다이버 모달 */}
+      <TechDetailModal 
+        techId={selectedTechId} 
+        mode={modalMode}
+        onClose={() => setSelectedTechId(null)} 
+      />
     </div>
   );
 };

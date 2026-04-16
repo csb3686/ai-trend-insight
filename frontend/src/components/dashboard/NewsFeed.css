@@ -33,6 +33,7 @@
   align-items: center;
   gap: 0.75rem;
   flex: 1;
+  min-width: 0; /* Flex 자식 요소에서 말줄임표 오작동 방지용 필수 설정 */
 }
 
 .category-pill-mini {

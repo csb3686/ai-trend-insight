@@ -116,8 +116,10 @@ class AdminService:
 
     def get_pending_technologies(self, db: Session) -> List[Dict]:
         """승인 대기 중인 신기술 목록을 조회합니다."""
-        sql = text("SELECT id, name, category, description, created_at FROM pending_technologies WHERE status = 'pending' ORDER BY created_at DESC")
+        print(">>> [DB QUERY] pending_technologies 조회 시작...")
+        sql = text("SELECT id, name, category, description, created_at FROM pending_technologies WHERE status = 'pending' ORDER BY created_at DESC LIMIT 50")
         result = db.execute(sql).fetchall()
+        print(f"<<< [DB QUERY] pending_technologies 조회 완료 (결과: {len(result)}건)")
         return [dict(row._mapping) for row in result]
 
     def approve_technology(self, db: Session, pending_id: int):

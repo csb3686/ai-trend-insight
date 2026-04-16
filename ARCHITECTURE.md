@@ -39,8 +39,8 @@
 │           │                                                      │
 │     ┌─────┴──────┐                                               │
 │     ▼            ▼                                               │
-│  [MySQL]      [GoogleGenerativeAI Embedder]                      │
-│  정형 저장    (models/embedding-001)                              │
+│  [MySQL]      [Google AI REST Direct Embedder]                    │
+│  정형 저장    (gemini-embedding-001)                              │
 │                  ▼                                               │
 │             [Chroma DB]                                          │
 │             벡터 저장 (로컬 Persistent)                           │
@@ -62,13 +62,13 @@
 │   └──────────────────────────────────────────────────────────┘  │
 │                                                                  │
 │   ┌──────────────────────────────────────────────────────────┐  │
-│   │         RAG 서비스 (LangChain + Langflow + Gemini)        │  │
+│   │         RAG 서비스 (Direct API + LangChain + Gemini)          │
 │   │                                                          │  │
 │   │  질문 입력                                                │  │
-│   │     → 임베딩 변환 (GoogleGenerativeAIEmbeddings)          │  │
+│   │     → 임베딩 변환 (GoogleDirectEmbeddings - v1beta REST)    │  │
 │   │     → Chroma 유사도 검색 (Top-K 문서)                    │  │
 │   │     → 컨텍스트 조합                                       │  │
-│   │     → LLM 답변 생성 (gemini-2.0-flash)                   │  │
+│   │     → LLM 답변 생성 (gemini-2.0-flash - v1beta REST)     │  │
 │   │     → 출처 URL 포함 답변 반환                              │  │
 │   └──────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
@@ -127,11 +127,11 @@
       │     - article_technologies 테이블 INSERT (다:다 관계)
       │     - trends 테이블 월별 집계 갱신
       │
-      └─→ [LangChain 임베딩]
+      └─→ [Google AI REST 직접 임베딩]
             - 청킹: RecursiveCharacterTextSplitter
               (chunk_size=500, chunk_overlap=50)
-            - 임베딩: GoogleGenerativeAIEmbeddings (models/embedding-001)
-            - Chroma 저장 (로컬 Persistent, 컬렉션: tech_news / github_repos)
+            - 임베딩: GoogleDirectEmbeddings (gemini-embedding-001)
+            - Chroma 저장 (로컬 Persistent, 컬렉션: tech_articles)
             - 메타데이터: {article_id, source, date, url, technologies}
 ```
 
@@ -208,9 +208,11 @@
 │
 ├── FastAPI (backend)          port: 8000  (uvicorn)
 │     실행: uvicorn app.main:app --reload
+│     안정성: Connection Pool (pool_size=10, max_overflow=20) 적용
 │
-└── React (frontend)           port: 3000  (npm run dev)
+└── React (frontend)           port: 5173  (Vite)
       실행: npm run dev
+      기능: High-Density Neo-Glow 차트 및 개별 API 생존 모드 적용
 ```
 
 ---

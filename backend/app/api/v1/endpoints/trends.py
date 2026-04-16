@@ -42,16 +42,13 @@ async def get_timeline(
     tech_id: int,
     db: Session = Depends(get_db)
 ):
-    """특정 기술의 연도/월별 언급량 추이를 조회합니다."""
-    # 기술명을 가져오기 위해 간단한 조회
-    from app.models.technology import Technology
-    tech = db.query(Technology).filter(Technology.id == tech_id).first()
-    if not tech:
+    """특정 기술의 연도/월별 언급량 추이 및 인사이트 분석 결과를 조회합니다."""
+    result = trend_service.get_tech_timeline(db, tech_id)
+    if not result:
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Technology not found")
         
-    timeline = trend_service.get_tech_timeline(db, tech_id)
-    return TrendTimelineResponse(tech_id=tech_id, name=tech.name, timeline=timeline)
+    return result
 
 @router.get("/keywords", response_model=List[KeywordItem])
 async def get_keywords(db: Session = Depends(get_db)):

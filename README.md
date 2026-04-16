@@ -29,16 +29,16 @@
 - **TrendsAggregator**: 전월 대비 성장률(%)을 자동 산출하는 고성능 통계 프로세서
 - **Master Sync**: 실시간 수집과 역사적 데이터 보강을 한 번에 통합하는 마스터 파이프라인
 
-### 2. 🤖 RAG 챗봇
+### 3. 🤖 RAG 챗봇
 - 수집된 뉴스 + GitHub 데이터 기반 벡터 검색
 - LangChain + Chroma를 활용한 문서 임베딩 및 유사도 검색
 - Langflow 기반 LLM 파이프라인으로 자연어 질의응답
 - 답변 출처 원문 링크 제공
 
-### 3. 📈 Top 5 트렌드 변화율
-- 지난달 대비 기술 언급량 **변화율(%)** 계산
-- 급상승/급하락 기술 자동 감지 및 강조 표시
-- 트렌드 이유 AI 요약 제공
+### 4. 📉 미니멀리즘 프리미엄 대시보드
+- **Neo-Sparkline**: Recharts와 SVG 네온 필터를 결합한 초정밀 추세 시각화 구현
+- **System Cockpit 2.0**: 실시간 헬스체크 및 개별 API 타임아웃(10s) 복원력 확보
+- **Data Focused**: 불필요한 노이즈를 제거하고 데이터 본연의 가치에 집중한 UI
 
 ---
 
@@ -47,12 +47,13 @@
 | 영역 | 기술 |
 |------|------|
 | **데이터 수집** | Python `schedule` 패키지, Playwright |
-| **LLM** | **Groq (Llama 3.3 70B)** (Hyper-fast Inference) |
-| **Embedding** | Google Gemini (text-embedding-004) |
-| **데이터 정제** | Pandas |
+| **LLM (Gen)** | **Google Gemini 2.0 Flash** (Universal Intelligence) |
+| **Embedding** | **Google Gemini (gemini-embedding-001)** (Direct REST) |
+| **데이터 정제** | AI Analyst (Gemini 2.0 Flash) & Pandas |
 | **백엔드 API** | FastAPI (Python 3.11+) |
 | **프론트엔드** | React 18 + Recharts |
 | **정형 DB** | MySQL 8.0 (로컬 설치) |
+| **벡터 DB** | ChromaDB (Local Persistent) |
 
 ---
 
@@ -73,8 +74,8 @@
   긱뉴스 RSS / HN RSS / GitHub API
          │
          ▼
-[데이터 정제 - Pandas]
-  텍스트 클렌징 · 기술 키워드 추출
+[데이터 정제 - Pandas + AI Analyst]
+  텍스트 클렌징 · 신기술 감지 (Gemini 2.0)
          │
     ┌────┴────┐
     ▼         ▼
@@ -84,7 +85,7 @@
     └────┬────┘
          ▼
 [FastAPI 백엔드]
-  REST API 서빙
+  REST API 서비스 & Admin Cockpit 2.2
          │
          ▼
 [React 프론트엔드]
@@ -101,30 +102,26 @@
 ai-trend-insight/
 ├── backend/                  # FastAPI 백엔드
 │   ├── app/
-│   │   ├── api/             # 라우터 (뉴스, 트렌드, 챗봇)
+│   │   ├── api/             # 라우터 (뉴스, 트렌드, 챗봇, 어드민)
 │   │   ├── models/          # SQLAlchemy 모델
 │   │   ├── schemas/         # Pydantic 스키마
-│   │   ├── services/        # 비즈니스 로직
+│   │   ├── services/        # 비동기 비즈니스 로직
 │   │   └── main.py
 │   └── requirements.txt
 │
 ├── frontend/                 # React 프론트엔드
 │   ├── src/
-│   │   ├── components/      # 히트맵, 챗봇, 트렌드 컴포넌트
+│   │   ├── components/      # 히트맵, 챗봇, 대시보드 UI
 │   │   ├── pages/
 │   │   └── App.jsx
 │   └── package.json
 │
-├── data-pipeline/            # 데이터 수집 · 정제
-│   ├── crawlers/            # Playwright 크롤러
-│   ├── processors/          # Pandas 정제 로직
-│   └── scheduler.py         # 자동 수집 매니저 데몬
-│
-├── langflow/                 # Langflow 파이프라인 설정
-│   └── flows/
+├── data-pipeline/            # 데이터 수집 · 정제 파이프라인
+│   ├── collectors/          # Playwright & RSS 수집기
+│   ├── processors/          # AI 분석 및 정제 로직
+│   └── scheduler.py         # 자동 스케줄러 데몬
 │
 ├── README.md
-├── PLAN.md
 ├── ARCHITECTURE.md
 ├── DB_SCHEMA.md
 ├── API_SPEC.md
@@ -146,7 +143,6 @@ ai-trend-insight/
 ```bash
 cp .env.example .env
 # .env 파일에 아래 값 입력
-# GITHUB_TOKEN=your_github_token
 # GEMINI_API_KEY=your_gemini_api_key
 # MYSQL_ROOT_PASSWORD=your_mysql_password
 # MYSQL_DATABASE=ai_trend
@@ -155,12 +151,9 @@ cp .env.example .env
 ### 실행
 
 ```bash
-# 1. MySQL 로컬 서버 기동 (설치 후)
+# 1. MySQL 로컬 서버 기동 및 초기화
 mysql -u root -p < init.sql
 
-# 2. 파이썬 기반 데이터 수집 스케줄러 실행
-cd backend
-python -m pipeline.scheduler
 
 # 3. Langflow 실행
 pip install langflow
@@ -199,8 +192,11 @@ npm run dev
 | 4단계 | 데이터 정제 & MySQL 저장 | ✅ 완료 |
 | 5단계 | 벡터 임베딩 & Chroma 저장 | ✅ 완료 |
 | 6단계 | FastAPI 백엔드 & RAG 챗봇 (Groq Hybrid) | ✅ 완료 |
-| 7단계 | 프론트엔드 실제 API 연결 | 🔲 예정 |
-| 8단계 | QA 자동화 및 CI 파이프라인 (GitHub Actions) | 🔲 예정 |
+| 7단계 | 프론트엔드 실제 API 연결 | ✅ 완료 |
+| 8단계 | QA 자동화 및 CI 파이프라인 (GitHub Actions) | ✅ 완료 |
+| 9단계 | 시스템 마스터피스 폴리싱 및 조종석 2.0 고도화 | ✅ 완료 |
+| 10단계 | AI 엔진 복구 및 Google Direct REST API 전환 | ✅ 완료 |
+| 11단계 | 네온 시각화 및 시스템 안정성 끝판왕 고도화 | ✅ 완료 |
 
 > 상세 계획 → [PLAN.md](./PLAN.md)  
 > 개발 체크리스트 → [TODO.md](./TODO.md)

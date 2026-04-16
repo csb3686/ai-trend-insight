@@ -207,7 +207,31 @@ CREATE TABLE trends (
 
 ---
 
-## 6. 주요 쿼리 예시
+## 6. `collection_logs` — 수집 및 처리 이력 (관리자 전용)
+
+```sql
+CREATE TABLE collection_logs (
+    id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    task_type       VARCHAR(50) NOT NULL COMMENT '작업 유형 (COLLECT, EMBED, STATS)',
+    source_id       INT UNSIGNED DEFAULT NULL COMMENT '출처 FK (수집 시)',
+    start_time      DATETIME DEFAULT CURRENT_TIMESTAMP,
+    end_time        DATETIME DEFAULT NULL COMMENT '완료 일시',
+    status          VARCHAR(20) DEFAULT 'IN_PROGRESS' COMMENT '상태 (IN_PROGRESS, SUCCESS, FAIL)',
+    collected_count INT DEFAULT 0 COMMENT '수집된 새로운 아이템 수',
+    processed_count INT DEFAULT 0 COMMENT '처리에 성공한 아이템 수',
+    error_message   TEXT COMMENT '실패 시 에러 로그',
+    triggered_by    VARCHAR(50) DEFAULT 'scheduler' COMMENT '트리거 주체',
+    
+    FOREIGN KEY (source_id) REFERENCES sources(id) ON DELETE SET NULL,
+    INDEX idx_task_type (task_type),
+    INDEX idx_start_time (start_time),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='작업 이력 로그 테이블';
+```
+
+---
+
+## 7. 주요 쿼리 예시
 
 ### 히트맵 — 이번 달 기술 Top 10
 
