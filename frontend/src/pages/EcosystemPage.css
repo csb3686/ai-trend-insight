@@ -1,0 +1,172 @@
+.ecosystem-page-root {
+  background: #0b0f1a; /* 아카이브 페이지와 동일한 딥 다크 배경 */
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #fff;
+}
+
+.ecosystem-layout {
+  position: relative;
+  z-index: 5;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 헤더/상단 바: 아카이브 스타일의 다크 카드 */
+.ecosystem-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: #111827; /* 다크 네이비 카드 */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+.clean-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.025em;
+}
+
+.info-text-clean p {
+  margin: 5px 0 0;
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+/* 버튼 디자인: 아카이브 스타일 */
+.back-btn-clean {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-btn-clean:hover {
+  background: #334155;
+  border-color: #3b82f6;
+}
+
+.clean-icon-btn {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clean-icon-btn:hover {
+  background: #334155;
+  color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.ecosystem-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* 메인 그래프 영역: 깊이감 있는 다크 캔버스 */
+.graph-theater-section-clean {
+  flex: 1;
+  position: relative;
+  background: #0f172a; /* 약간의 푸른 배색이 섞인 다크 */
+  margin: 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.cytoscape-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* 로더 디자인: 아카이브 스타일 */
+.graph-overlay-loader-clean {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(11, 15, 26, 0.9);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  color: #3b82f6;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* 하위 범례: 다크 플로팅 대시보드 */
+.graph-floating-footer-clean {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 50;
+}
+
+.category-legend-clean {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.9);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(12px);
+}
+
+.leg-item-clean {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px; /* 약간의 둥근 사각형으로 세련미 */
+}
+
+.color-dot.ai { background: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+.color-dot.language { background: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+.color-dot.framework { background: #8b5cf6; box-shadow: 0 0 10px rgba(139, 92, 246, 0.5); }
+.color-dot.devops { background: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

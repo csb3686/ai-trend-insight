@@ -13,10 +13,12 @@ async def get_articles(
     limit: int = Query(10, ge=1, le=100),
     type: Optional[str] = Query(None, description="기사 유형 (news, github_repo)"),
     source_id: Optional[int] = Query(None, description="출처 ID 필터"),
+    q: Optional[str] = Query(None, description="제목 키워드 검색"),
+    category: Optional[str] = Query(None, description="기술 카테고리 필터"),
     db: Session = Depends(get_db)
 ):
     """뉴스 기사 및 GitHub 트렌딩 목록을 조회합니다."""
-    total, items = article_service.get_articles(db, skip, limit, type, source_id)
+    total, items = article_service.get_articles(db, skip, limit, type, source_id, q, category)
     return ArticleListResponse(total=total, items=items)
 
 @router.get("/tech/{tech_id}", response_model=List[ArticleListItem])
@@ -25,7 +27,7 @@ async def get_articles_by_tech(
     limit: int = Query(3, ge=1, le=10),
     db: Session = Depends(get_db)
 ):
-    """특정 기술이 언급된 최신 뉴스 목록을 조회합니다. (히트맵 상세 패널용)"""
+    """특정 기술이 언급된 최신 뉴스 목록을 조회합니다."""
     return article_service.get_articles_by_tech(db, tech_id, limit)
 
 @router.get("/{article_id}", response_model=ArticleDetail)

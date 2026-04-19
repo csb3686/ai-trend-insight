@@ -14,6 +14,7 @@ class Article(Base):
     description = Column(Text)
     content = Column(Text)
     author = Column(String(200))
+    tech_category = Column(String(100)) # 뉴스/기술 카테고리 분류용
     published_at = Column(DateTime)
     
     # GitHub 전용 필드

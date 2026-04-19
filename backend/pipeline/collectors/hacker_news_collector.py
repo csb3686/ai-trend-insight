@@ -8,9 +8,9 @@ from backend.pipeline.collectors.base_collector import BaseCollector
 from backend.pipeline.collectors.rss_parser import fetch_and_parse_rss
 
 class HackerNewsCollector(BaseCollector):
-    def __init__(self):
+    def __init__(self, auto_log=True):
         # DB에 저장될 source_name 설정
-        super().__init__(source_name="HackerNews")
+        super().__init__(source_name="HackerNews", auto_log=auto_log)
         # HN의 특정 키워드/AI 관련 소식이 많은 가장 인기 있는 비공식 피드 활용
         self.feed_url = "https://hnrss.org/frontpage"
 
@@ -26,7 +26,8 @@ class HackerNewsCollector(BaseCollector):
                     url=article['link'],
                     content=article['description'],
                     published_at=article['published_at'],
-                    target_type='news'
+                    target_type='news',
+                    tech_category='News'
                 )
                 if is_saved:
                     saved_count += 1

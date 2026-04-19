@@ -31,6 +31,12 @@ class Settings(BaseSettings):
     github_token: str
 
     # ========================
+    # LLM & Embedding Settings
+    # ========================
+    use_llm_provider: str = "groq"
+    embedding_provider: str = "local"
+
+    # ========================
     # MySQL 데이터베이스
     # ========================
     mysql_host: str = "localhost"
@@ -38,6 +44,14 @@ class Settings(BaseSettings):
     mysql_user: str = "root"
     mysql_password: str
     mysql_database: str = "ai_trend"
+
+    # ========================
+    # Redis 캐시
+    # ========================
+    redis_host: str = "localhost"
+    redis_port: int = 6379
+    redis_db: int = 0
+    cache_expire: int = 3600  # 기본 만료 시간 (1시간)
 
     # ========================
     # Chroma 벡터 DB

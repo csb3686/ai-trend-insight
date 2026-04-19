@@ -13,6 +13,7 @@ async def chat_with_rag(request: ChatRequest):
         result = await rag_service.get_answer(request.message)
         return ChatResponse(
             answer=result["answer"],
+            sources=result["sources"],
             context=result["context"]  # 개발 및 디버깅용으로 컨텍스트 포함
         )
     except Exception as e:

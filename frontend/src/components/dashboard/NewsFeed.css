@@ -56,6 +56,8 @@
 .category-pill-mini.data { color: #f43f5e !important; }
 .category-pill-mini.language { color: #6366f1 !important; }
 .category-pill-mini.framework { color: #06b6d4 !important; }
+.category-pill-mini.trend { color: #f59e0b !important; } /* 추가: 트렌트 배지 주황색 */
+.category-pill-mini.news { color: #3b82f6 !important; } /* 추가: 뉴스 배지 파란색 */
 .category-pill-mini.others, .category-pill-mini.other { color: #4b5563 !important; }
 .category-pill-mini.cloud { color: #0ea5e9 !important; }
 

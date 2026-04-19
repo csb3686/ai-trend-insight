@@ -11,6 +11,7 @@ class CollectionLog(Base):
     start_time = Column(DateTime, server_default=func.now())
     end_time = Column(DateTime)
     status = Column(Enum('IN_PROGRESS', 'SUCCESS', 'FAIL'), default='IN_PROGRESS', nullable=False)
+    progress = Column(Integer, default=0, nullable=False) # 진척도 (0-100)
     collected_count = Column(Integer, default=0)
     processed_count = Column(Integer, default=0)
     error_message = Column(Text)

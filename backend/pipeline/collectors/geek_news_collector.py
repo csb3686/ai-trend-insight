@@ -8,9 +8,9 @@ from backend.pipeline.collectors.base_collector import BaseCollector
 from backend.pipeline.collectors.rss_parser import fetch_and_parse_rss
 
 class GeekNewsCollector(BaseCollector):
-    def __init__(self):
+    def __init__(self, auto_log=True):
         # DB에 저장될 source_name 설정
-        super().__init__(source_name="GeekNews")
+        super().__init__(source_name="GeekNews", auto_log=auto_log)
         self.feed_url = "https://news.hada.io/rss/news"
 
     def run(self):
@@ -25,7 +25,8 @@ class GeekNewsCollector(BaseCollector):
                     url=article['link'],
                     content=article['description'],
                     published_at=article['published_at'],
-                    target_type='news'
+                    target_type='news',
+                    tech_category='News'
                 )
                 if is_saved:
                     saved_count += 1

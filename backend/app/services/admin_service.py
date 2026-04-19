@@ -85,21 +85,35 @@ class AdminService:
         try:
             start_time = time.time()
             if task_type == 'COLLECT':
-                # 수집 및 기본 전처리 수행
-                scheduler.job_geek_news()
-                scheduler.job_hacker_news()
-                scheduler.job_github_trending()
+                # 통합 수집 모드: 개별 로그 생성을 억제하고 성공 여부를 수집
+                log.progress = 10; db.commit()
+                res1 = scheduler.job_geek_news(auto_log=False)
+                
+                log.progress = 30; db.commit()
+                res2 = scheduler.job_hacker_news(auto_log=False)
+                
+                log.progress = 50; db.commit()
+                res3 = scheduler.job_github_trending(auto_log=False)
+                
+                # 하나라도 실패하면 최종 상태를 FAIL로 설정하기 위한 체크
+                if not (res1 and res2 and res3):
+                    raise Exception("일부 수집 소스에서 에러가 발생했습니다. 상세 로그를 확인하세요.")
+                
+                log.progress = 70; db.commit()
                 scheduler.job_process_data()
+                log.progress = 95; db.commit()
             elif task_type == 'EMBED':
-                # AI 임베딩 수행
+                log.progress = 10; db.commit()
                 scheduler.job_embed_data()
+                log.progress = 95; db.commit()
             elif task_type == 'STATS':
-                # 트렌드 통계 재집계
+                log.progress = 10; db.commit()
                 scheduler.job_aggregate_trends()
+                log.progress = 95; db.commit()
             
             log.status = 'SUCCESS'
+            log.progress = 100
             log.end_time = datetime.now()
-            # 간단한 기록 (실제 수집량 계산은 생략하거나 나중에 보완)
             log.processed_count = 1 
             db.commit()
         except Exception as e:
