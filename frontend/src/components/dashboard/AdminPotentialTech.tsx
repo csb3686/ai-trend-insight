@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Shield, RefreshCw } from 'lucide-react';
+import { Shield, Loader2 } from 'lucide-react';
 import './AdminPotentialTech.css';
 
 interface PendingTech {
@@ -20,30 +20,27 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
   const [stats, setStats] = useState<{total:number, embedded:number, percent:number} | null>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   const API_BASE_URL = "http://localhost:8000/api/v1";
 
-  // 시스템 통합 데이터(대기목록, 통계, 로그) 가져오기
-  const fetchAdminData = async () => {
+  // 현재 진행 중인 작업 찾기
+  const activeTask = logs.find(log => log.status === 'IN_PROGRESS');
+
+  const fetchAdminData = async (isSilent = false) => {
     if (!secret) return;
-    setLoading(true);
-    setErrorMsg(null);
+    if (!isSilent) setLoading(true);
 
     const config = { 
       headers: { 'x-admin-token': secret },
       timeout: 10000 
     };
 
-    // 개별적으로 요청하여 하나가 실패해도 나머지는 표시되도록 함
     const fetchPending = async () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/admin/pending-tech`, config);
         setPendingList(res.data);
-      } catch (err: any) {
-        console.error("Pending tech fetch failed", err);
-        // 개별 에러는 콘솔에만 기록하거나 작은 표시만 남김
-      }
+      } catch (err: any) { console.error("Pending tech fetch failed", err); }
     };
 
     const fetchStats = async () => {
@@ -61,14 +58,39 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
     };
 
     await Promise.allSettled([fetchPending(), fetchStats(), fetchLogs()]);
-    setLoading(false);
+    if (!isSilent) setLoading(false);
   };
+
+  // 실시간 모니터링 폴링 로직
+  useEffect(() => {
+    if (activeTask) {
+      if (!pollingRef.current) {
+        console.log(">>> [Polling] Start monitoring active task...");
+        pollingRef.current = setInterval(() => {
+          fetchAdminData(true); // 배경에서 조용히 업데이트
+        }, 2000);
+      }
+    } else {
+      if (pollingRef.current) {
+        console.log("<<< [Polling] Task finished. Stopping...");
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+        fetchAdminData(true); // 최종 상태 동기화
+      }
+    }
+
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
+  }, [activeTask]);
 
   useEffect(() => {
     fetchAdminData();
   }, [secret]);
 
-  // 승인 처리
   const handleApprove = async (id: number) => {
     if (!window.confirm("이 기술을 정식 기술 풀에 등록하시겠습니까?")) return;
     try {
@@ -76,13 +98,10 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
         headers: { 'x-admin-token': secret }
       });
       alert("정식 기술로 등록되었습니다! 🎉");
-      fetchAdminData(); // 목록 및 통계 갱신
-    } catch (err) {
-      alert("승인 처리 중 오류 발생");
-    }
+      fetchAdminData();
+    } catch (err) { alert("승인 처리 중 오류 발생"); }
   };
 
-  // 거절 처리
   const handleReject = async (id: number) => {
     if (!window.confirm("이 후보를 삭제하시겠습니까?")) return;
     try {
@@ -90,29 +109,26 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
         headers: { 'x-admin-token': secret }
       });
       alert("거절 처리되었습니다.");
-      fetchAdminData(); // 목록 및 통계 갱신
-    } catch (err) {
-      alert("거절 처리 중 오류 발생");
-    }
+      fetchAdminData();
+    } catch (err) { alert("거절 처리 중 오류 발생"); }
   };
 
-  // 시스템 수동 작업 트리거 (수집, 임베딩, 통계, 리셋)
   const handleSystemTask = async (task: 'collect' | 'embed' | 'recompute-stats' | 'reset-db') => {
+    if (activeTask) {
+      alert("이미 진행 중인 작업이 있습니다. 잠시만 기다려 주세요.");
+      return;
+    }
     const taskName = task === 'reset-db' ? '지식 저장소 리셋' : task;
     if (!window.confirm(`[${taskName}] 작업을 즉시 실행하시겠습니까?`)) return;
-    
     try {
       const res = await axios.post(`${API_BASE_URL}/admin/${task}`, {}, {
         headers: { 'x-admin-token': secret }
       });
       alert(res.data.message);
-      fetchAdminData(); // 로그 및 상태 갱신
-    } catch (err) {
-      alert("작업 요청 중 오류 발생");
-    }
+      fetchAdminData();
+    } catch (err) { alert("작업 요청 중 오류 발생"); }
   };
 
-  // 날짜 포맷팅 함수 (MM.DD HH:mm)
   const formatLogDate = (dateStr: string) => {
     const d = new Date(dateStr);
     const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -120,6 +136,13 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
     const hh = String(d.getHours()).padStart(2, '0');
     const min = String(d.getMinutes()).padStart(2, '0');
     return `${mm}.${dd} ${hh}:${min}`;
+  };
+
+  const getButtonText = (type: string, defaultText: string) => {
+    if (activeTask && activeTask.task_type === type) {
+      return `${defaultText} (${activeTask.progress || 0}%)`;
+    }
+    return defaultText;
   };
 
   if (!secret) return null;
@@ -140,15 +163,35 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
           )}
         </div>
         <div className="admin-actions-group">
-          <button onClick={() => handleSystemTask('collect')} className="control-btn collect">전체 수집</button>
-          <button onClick={() => handleSystemTask('embed')} className="control-btn embed">AI 학습</button>
-          <button onClick={() => handleSystemTask('recompute-stats')} className="control-btn stats">통계 갱신</button>
-          <button onClick={fetchAdminData} className="refresh-btn">새로고침</button>
+          <button 
+            onClick={() => handleSystemTask('collect')} 
+            className={`control-btn collect ${activeTask?.task_type === 'COLLECT' ? 'processing' : ''}`}
+            disabled={!!activeTask}
+          >
+            {activeTask?.task_type === 'COLLECT' && <Loader2 className="animate-spin" size={14} />}
+            {getButtonText('COLLECT', '전체 수집')}
+          </button>
+          <button 
+            onClick={() => handleSystemTask('embed')} 
+            className={`control-btn embed ${activeTask?.task_type === 'EMBED' ? 'processing' : ''}`}
+            disabled={!!activeTask}
+          >
+            {activeTask?.task_type === 'EMBED' && <Loader2 className="animate-spin" size={14} />}
+            {getButtonText('EMBED', 'AI 학습')}
+          </button>
+          <button 
+            onClick={() => handleSystemTask('recompute-stats')} 
+            className={`control-btn stats ${activeTask?.task_type === 'STATS' ? 'processing' : ''}`}
+            disabled={!!activeTask}
+          >
+            {activeTask?.task_type === 'STATS' && <Loader2 className="animate-spin" size={14} />}
+            {getButtonText('STATS', '통계 갱신')}
+          </button>
+          <button onClick={() => fetchAdminData()} className="refresh-btn" disabled={loading}>새로고침</button>
         </div>
       </div>
 
-      {/* 실시간 상태 알림 바 (글로벌 로딩만 표시, 에러 배너는 카드 내부로 이동) */}
-      {loading && (
+      {loading && !activeTask && (
         <div className="admin-loading-banner">
           <div className="spinner-mini"></div>
           <span>최신 데이터 동기화 중...</span>
@@ -156,17 +199,11 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
       )}
 
       <div className="admin-grid-layout">
-        {/* 신기술 승인 대기열 */}
         <div className="admin-card pending-queue">
           <h3 className="card-title">🆕 신기술 승인 대기열 ({pendingList.length})</h3>
           <div className="tech-waitlist">
-            {loading && pendingList.length === 0 ? (
-              <div className="loading-state">데이터 분석 중...</div>
-            ) : pendingList.length === 0 ? (
-              <div className="empty-state-box">
-                <p className="empty-msg">대기 중인 후보가 없습니다.</p>
-                <p className="info-msg-sub">백엔드 응답이 지연될 수 있습니다.</p>
-              </div>
+            {pendingList.length === 0 ? (
+              <div className="empty-state-box"><p className="empty-msg">대기 중인 후보가 없습니다.</p></div>
             ) : (
              pendingList.map(tech => (
                 <div key={tech.id} className="tech-item-card">
@@ -187,41 +224,31 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
           </div>
         </div>
 
-        {/* 최근 시스템 로그 */}
         <div className="admin-card logs-panel">
           <h3 className="card-title">📝 최근 시스템 로그</h3>
           <div className="log-table-container">
             <table className="log-table">
               <thead>
-                <tr>
-                  <th>시각</th>
-                  <th>작업</th>
-                  <th>상태</th>
-                </tr>
+                <tr><th>시각</th><th>작업</th><th>상태</th></tr>
               </thead>
               <tbody>
                 {logs.length === 0 ? (
                   <tr><td colSpan={3} className="empty-msg">로그가 없습니다.</td></tr>
                 ) : (
                   logs.map(log => (
-                    <React.Fragment key={log.id}>
-                      <tr className={`status-${log.status.toLowerCase()}`}>
-                        <td>{formatLogDate(log.start_time)}</td>
-                        <td>
-                          {log.task_type.toUpperCase() === 'COLLECT' ? '전체 수집' :
-                           log.task_type.toUpperCase() === 'EMBED' ? 'AI 학습' :
-                           log.task_type.toUpperCase() === 'RECOMPUTE-STATS' || log.task_type.toUpperCase() === 'STATS' ? '통계 갱신' : 
-                           log.task_type.toUpperCase() === 'RESET-DB' ? '저장소 리셋' : log.task_type}
-                        </td>
-                        <td>
-                          {log.status === 'SUCCESS' ? '✅' : (
-                          <div className="status-fail-row">
-                            <span>❌</span>
-                          </div>
-                        )}
-                       </td>
-                      </tr>
-                    </React.Fragment>
+                    <tr key={log.id} className={`status-${log.status.toLowerCase()}`}>
+                      <td>{formatLogDate(log.start_time)}</td>
+                      <td>{log.task_type.toUpperCase()}</td>
+                      <td>
+                        {log.status === 'SUCCESS' ? '✅' : 
+                         log.status === 'IN_PROGRESS' ? (
+                           <div className="progress-cell">
+                             <div className="spinner-tiny"></div>
+                             <span>{log.progress || 0}%</span>
+                           </div>
+                         ) : '❌'}
+                      </td>
+                    </tr>
                   ))
                 )}
               </tbody>
@@ -230,11 +257,9 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
         </div>
       </div>
 
-      {/* 위험 구역 */}
       <div className="danger-zone">
         <h3 className="danger-title">⚠️ 위험 구역 (Danger Zone)</h3>
-        <p className="danger-desc">모델 불일치나 검색 오류 발생 시 지식 저장소를 초기화해야 합니다.</p>
-        <button onClick={() => handleSystemTask('reset-db')} className="btn-reset-db">벡터 DB 초기화 및 전체 재학습 예약</button>
+        <button onClick={() => handleSystemTask('reset-db')} className="btn-reset-db" disabled={!!activeTask}>벡터 DB 초기화 및 전체 재학습 예약</button>
       </div>
     </section>
   );

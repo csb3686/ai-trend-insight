@@ -5,11 +5,17 @@
     - `[x]` `backend/app/services/trend_service.py` 생성 (DB 조회 로직)
     - `[x]` `backend/app/api/v1/endpoints/trends.py` 생성 (라우터)
     - `[x]` API 통합 등록 (`app.api.v1.__init__.py`)
-- `[x]` 기능별 엔드포인트 구현
-    - `[x]` `GET /trends/heatmap`: 기술별 언급 횟수 (히트맵용)
-    - `[x]` `GET /trends/top5`: 급상승/급하락 기술 (변화율 기준)
-    - `[x]` `GET /trends/timeline/{tech_id}`: 특정 기술의 월별 변동 추이
-    - `[x]` `GET /trends/keywords`: 검색용 모든 기술 키워드 목록
-- `[ ]` 최종 확인 및 연동
-    - `[ ]` Swagger UI 테스트 및 JSON 구조 확인
-    - `[ ]` TODO.md 관련 항목 체크 [x] 업데이트
+- [x] **백엔드: 검색 및 필터 로직 구현**
+    - [x] `article_service.py` - 제목 검색 및 카테고리 필터링 쿼리 추가
+    - [x] `articles.py` - API 파라미터 연동
+- [x] **프론트엔드: 통합 뉴스 페이지 구축**
+    - [x] `NewsPage.tsx` 생성 (무한 스크롤 + 필터 바)
+    - [x] `NewsPage.css` 디자인 정의
+    - [x] `App.tsx` 라우트 연결
+    - [x] `NewsFeed.tsx` (대시보드) 전체 보기 링크 수정
+- [x] **검증 및 폴리싱**
+    - [x] 검색/필터링 기능 동작 확인
+    - [x] 무한 스크롤 안정성 테스트
+- `[x]` 최종 확인 및 연동 🚀🚀🚀🚀🚀🚀🚀🚀🚀
+    - `[x]` Swagger UI 테스트 및 JSON 구조 확인
+    - `[x]` TODO.md 관련 항목 체크 [x] 업데이트

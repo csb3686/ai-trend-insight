@@ -5,15 +5,15 @@ import type { ArticleListResponse } from '../models-v2';
 /**
  * 기사 목록(뉴스 및 GitHub 저장소)을 가져오는 훅
  */
-export const useArticles = (page = 1, pageSize = 10, type?: string) => {
+export const useArticles = (skip = 0, limit = 10, type?: string, q?: string, category?: string) => {
   return useQuery<ArticleListResponse>({
-    queryKey: ['articles', page, pageSize, type],
+    queryKey: ['articles', skip, limit, type, q, category],
     queryFn: async () => {
       const { data } = await client.get('/articles', {
-        params: { page, page_size: pageSize, type },
+        params: { skip, limit, type, q, category },
       });
       return data;
     },
-    staleTime: 1000 * 60 * 3, // 3분간 캐시 유지
+    staleTime: 1000 * 60 * 1, // 검색 반영을 위해 캐시 시간 1분으로 조정
   });
 };

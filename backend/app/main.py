@@ -21,6 +21,30 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# --- DB 스키마 자가 치유 로직 (progress 컬럼 자동 추가) ---
+@app.on_event("startup")
+async def init_db_schema():
+    from app.core.database import SessionLocal
+    print("--- [Initialization] DB 스킨 검사 및 자가 치유 시작 ---")
+    db = SessionLocal()
+    try:
+        # progress 컬럼 존재 여부 확인
+        check_sql = text("SHOW COLUMNS FROM collection_logs LIKE 'progress'")
+        result = db.execute(check_sql).fetchone()
+        
+        if not result:
+            print("[Initialization] progress 컬럼이 없습니다. 수동 생성 중...")
+            add_sql = text("ALTER TABLE collection_logs ADD COLUMN progress INT NOT NULL DEFAULT 0 AFTER status")
+            db.execute(add_sql)
+            db.commit()
+            print("[Initialization] progress 컬럼 생성 완료! ✅")
+        else:
+            print("[Initialization] 스키마가 최신 상태입니다. ✅")
+    except Exception as e:
+        print(f"[Initialization Warning] 스키마 확인 중 오류 (이미 존재할 수 있음): {e}")
+    finally:
+        db.close()
+
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
@@ -105,17 +129,22 @@ async def run_full_pipeline_debug(db: Session = Depends(get_db)):
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-# 라우터 등록
-app.include_router(api_router, prefix="/api/v1")
+# CORS 설정 (라우터 등록 전에 배치해야 안전하게 적용됩니다)
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
 
-# CORS 설정 (프론트엔드 연동 대비)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 개발 단계에서는 모두 허용
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 라우터 등록
+app.include_router(api_router, prefix="/api/v1")
 
 @app.get("/", tags=["Root"])
 async def root():

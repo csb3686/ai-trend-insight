@@ -1,0 +1,312 @@
+/* 뉴스 아카이브 전용 스타일 */
+.news-archive-container {
+  padding-top: 1rem;
+  padding-bottom: 5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.news-hero {
+  padding: 2.5rem 3rem;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.hero-top-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: -0.5rem;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-color: var(--color-ai);
+  transform: translateX(-4px);
+}
+
+.news-page-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  background: linear-gradient(to right, #fff, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+
+.news-page-subtitle {
+  color: #94a3b8;
+  font-size: 1.1rem;
+}
+
+.search-and-filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 25px; /* 검색창과 트렌드 섹션 사이 간격 확보 */
+  width: 100%;
+  margin-top: 10px;
+}
+
+.search-box-premium {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0 1.2rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.search-box-premium:focus-within {
+  border-color: var(--color-ai);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.search-icon {
+  color: rgba(255, 255, 255, 0.3);
+  margin-right: 12px;
+}
+
+.premium-search-input {
+  width: 100%;
+  height: 56px;
+  background: none;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 1.05rem;
+}
+
+.premium-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.trending-tags-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.trending-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8); /* 더 선명하게 변경 */
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.fire-icon {
+  filter: drop-shadow(0 0 5px rgba(255, 100, 0, 0.5));
+}
+
+.trending-tags-list {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.trend-tag {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(5px);
+}
+
+.trend-tag:hover {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: var(--color-ai);
+  color: var(--color-ai);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(56, 189, 248, 0.2);
+}
+
+.type-toggle-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 25px;
+  padding: 0 5px;
+}
+
+.type-toggle-group {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 5px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.type-btn {
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.type-btn.active {
+  background: var(--color-ai);
+  color: white;
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+}
+
+.type-btn:hover:not(.active) {
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* 뉴스 그리드 마스터 */
+.news-grid-master {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.news-card-master {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding: 1.8rem;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.news-card-master:hover {
+  transform: translateY(-5px) scale(1.02);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.source-label-mini {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.card-title-master {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: #f1f5f9;
+  font-weight: 700;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 3.75rem;
+}
+
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-date-mini {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.card-link-icon {
+  color: #475569;
+  transition: color 0.2s;
+}
+
+.news-card-master:hover .card-link-icon {
+  color: var(--color-ai);
+}
+
+/* 추가 로드 버튼 */
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 4rem;
+}
+
+.btn-load-more {
+  padding: 1rem 3rem;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-load-more:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: var(--color-ai);
+  color: var(--color-ai);
+}
+
+.btn-load-more:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}

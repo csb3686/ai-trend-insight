@@ -10,8 +10,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
 from backend.pipeline.collectors.base_collector import BaseCollector
 
 class GithubTrendingCollector(BaseCollector):
-    def __init__(self):
-        super().__init__(source_name="GitHub Trending")
+    def __init__(self, auto_log=True):
+        super().__init__(source_name="GitHub Trending", auto_log=auto_log)
         self.github_token = os.getenv('GITHUB_TOKEN')
         self.headers = {
             "Accept": "application/vnd.github.v3+json",
@@ -60,7 +60,8 @@ class GithubTrendingCollector(BaseCollector):
                     url=repo_url,
                     content=content,
                     published_at=datetime.now(),
-                    target_type='github_repo'
+                    target_type='github_repo',
+                    tech_category='Trend'
                 )
                 
                 if is_saved:

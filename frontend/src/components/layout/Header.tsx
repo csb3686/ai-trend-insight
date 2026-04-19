@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Radar, TrendingUp, Newspaper, Shield } from 'lucide-react';
+import { Radar, TrendingUp, Newspaper, Shield, Share2 } from 'lucide-react';
 import './Header.css';
 
 interface HeaderProps {
@@ -35,6 +35,13 @@ const Header: React.FC<HeaderProps> = ({ isAdmin }) => {
         >
           <Newspaper size={18} />
           <span>뉴스</span>
+        </NavLink>
+        <NavLink 
+          to="/ecosystem" 
+          className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}
+        >
+          <Share2 size={18} />
+          <span>생태계</span>
         </NavLink>
       </nav>
     </header>

@@ -99,15 +99,20 @@ class HybridDataGenerator:
                         
                         # Article 저장 (Source 2: GeekNews 고정)
                         cursor.execute("""
-                            INSERT INTO articles (title, url, content, published_at, source_id)
+                            INSERT IGNORE INTO articles (title, url, content, published_at, source_id)
                             VALUES (%s, %s, %s, %s, %s)
                         """, (title, url, f"{tech_name}에 관한 심층 테크 리포트입니다.", pub_date, 2))
                         
                         article_id = cursor.lastrowid
                         
-                        # Article-Tech 연결
+                        # 만약 중복 데이터라 INSERT 되지 않았다면 기존 ID 조회
+                        if article_id == 0:
+                            cursor.execute("SELECT id FROM articles WHERE url = %s", (url,))
+                            article_id = cursor.fetchone()['id']
+                        
+                        # Article-Tech 연결 (중복 방지 IGNORE 추가)
                         cursor.execute("""
-                            INSERT INTO article_technologies (article_id, tech_id, mention_count)
+                            INSERT IGNORE INTO article_technologies (article_id, tech_id, mention_count)
                             VALUES (%s, %s, %s)
                         """, (article_id, tech_id, random.randint(1, 5)))
                         

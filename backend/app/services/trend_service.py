@@ -18,7 +18,14 @@ class TrendService:
         if not year or not month:
             year, month = self.get_latest_period(db)
 
-        # Technology 테이블과 Join하여 이름과 카테고리 정보를 가져옵니다.
+        # 1. 캐시 시도
+        from app.core.cache import cache_service
+        cache_key = f"heatmap:{year}:{month}"
+        cached_data = cache_service.get(cache_key)
+        if cached_data:
+            return year, month, [TrendHeatmapItem(**item) for item in cached_data]
+
+        # 2. 캐시 없으면 DB 조회
         results = db.query(
             Trend.tech_id,
             Technology.name,
@@ -31,16 +38,21 @@ class TrendService:
          .order_by(desc(Trend.mention_count))\
          .all()
 
-        return year, month, [
-            TrendHeatmapItem(
-                tech_id=row.tech_id,
-                name=row.name,
-                category=row.category,
-                mention_count=row.mention_count,
-                rank=row.rank_current,
-                change_rate=row.change_rate
-            ) for row in results
+        data_list = [
+            {
+                "tech_id": row.tech_id,
+                "name": row.name,
+                "category": row.category,
+                "mention_count": row.mention_count,
+                "rank": row.rank_current,
+                "change_rate": row.change_rate
+            } for row in results
         ]
+        
+        # 3. 결과 캐싱 (1시간)
+        cache_service.set(cache_key, data_list)
+
+        return year, month, [TrendHeatmapItem(**item) for item in data_list]
 
     def get_top5_trends(self, db: Session, year: Optional[int] = None, month: Optional[int] = None):
         """변화율 기준 상승/하락 Top 5를 조회하며, 시각화용 타임라인과 인사이트를 포함합니다."""
@@ -209,24 +221,34 @@ class TrendService:
         """대시보드 상단에 표시될 통계 요약 정보를 집계합니다."""
         from app.models.article import Article
         from datetime import datetime
-        
+        from app.core.cache import cache_service
+
+        # 1. 캐시 시도
+        cache_key = "dashboard:summary"
+        cached_data = cache_service.get(cache_key)
+        if cached_data:
+            return cached_data
+
+        # 2. 캐시 없으면 DB 연산
         news_count = db.query(Article).filter(Article.type == 'news').count()
         github_count = db.query(Article).filter(Article.type == 'github_repo').count()
         tech_count = db.query(Technology).filter(Technology.is_active == True).count()
         
-        # 진짜 마지막 업데이트 시간 조회 (최신 기사 기준)
         last_article = db.query(Article).order_by(desc(Article.created_at)).first()
         last_updated_dt = last_article.created_at if last_article else datetime.now()
-        
-        # 몇 분 전인지 계산
         minutes_ago = int((datetime.now() - last_updated_dt).total_seconds() / 60)
         
-        return {
+        summary = {
             "news_count": news_count,
             "github_count": github_count,
             "tech_count": tech_count,
             "last_updated": last_updated_dt.strftime("%Y-%m-%d %H:%M"),
             "updated_minutes_ago": minutes_ago
         }
+
+        # 3. 결과 캐싱 (10분)
+        cache_service.set(cache_key, summary, expire=600)
+        
+        return summary
 
 trend_service = TrendService()

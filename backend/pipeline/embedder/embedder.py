@@ -7,34 +7,36 @@ from langchain_community.vectorstores import Chroma
 # 경로 설정 (모듈 임포트를 위해)
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
 
-from backend.app.core.embedding_utils import GoogleDirectEmbeddings
+from backend.app.core.config import get_settings
+from backend.app.core.embedding_utils import GoogleDirectEmbeddings, LocalEmbeddings
 from backend.pipeline.embedder.text_splitter import ArticleTextSplitter
 
-# .env 로드
-env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../..', '.env')
-load_dotenv(dotenv_path=env_path)
+settings = get_settings()
 
 class ArticleEmbedder:
     def __init__(self):
         # 1. DB 설정
-        self.db_host = os.getenv('MYSQL_HOST', 'localhost')
-        self.db_port = int(os.getenv('MYSQL_PORT', 3306))
-        self.db_user = os.getenv('MYSQL_USER', 'root')
-        self.db_password = os.getenv('MYSQL_PASSWORD', 'root')
-        self.db_name = os.getenv('MYSQL_DATABASE', 'ai_trend')
+        self.db_host = settings.mysql_host
+        self.db_port = settings.mysql_port
+        self.db_user = settings.mysql_user
+        self.db_password = settings.mysql_password
+        self.db_name = settings.mysql_database
         
-        # 2. 커스텀 임베딩 모델 설정 (v1 정식 버전 직접 호출 - gemini-embedding-001)
-        self.api_key = os.getenv('GEMINI_API_KEY')
-        if not self.api_key:
-            raise ValueError("GEMINI_API_KEY가 .env 파일에 설정되어 있지 않습니다.")
-            
-        self.embeddings = GoogleDirectEmbeddings(
-            model="gemini-embedding-001",
-            api_key=self.api_key
-        )
+        # 2. 임베딩 모델 설정 (로컬/구글 스위칭)
+        if settings.embedding_provider == "local":
+            self.embeddings = LocalEmbeddings(model_name="jhgan/ko-sroberta-multitask")
+            print("[Embedder] Using Local Embedding Mode (ko-sroberta)")
+        else:
+            self.embeddings = GoogleDirectEmbeddings(
+                model="gemini-embedding-001",
+                api_key=settings.gemini_api_key
+            )
+            print("[Embedder] Using Google Gemini Embedding Mode")
         
-        # 3. ChromaDB 설정 (완전히 새로운 경로와 이름을 사용합니다)
-        self.persist_directory = os.path.join(os.path.dirname(__file__), '../../chroma_storage')
+        # 3. ChromaDB 설정 (RAGService와 완벽 동기화)
+        # 프로젝트 루트 디렉토리 찾기
+        curr_dir = os.path.dirname(os.path.abspath(__file__))
+        self.persist_directory = os.path.normpath(os.path.join(curr_dir, "../../../", settings.chroma_storage_path))
         self.collection_name = "trend_insight_final"
         
         # 4. 텍스트 분할기 설정
@@ -51,7 +53,7 @@ class ArticleEmbedder:
             autocommit=True
         )
 
-    def run_embedding_pipeline(self, batch_size=100):
+    def run_embedding_pipeline(self, batch_size=1000):
         """임베딩되지 않은 기사를 가져와 처리하는 전체 파이프라인"""
         conn = self.get_db_connection()
         try:
@@ -90,13 +92,17 @@ class ArticleEmbedder:
                     
                     article_ids.append(article_id)
 
-                # 3. ChromaDB에 추가 (임베딩 모델이 내부적으로 호출됨)
-                vector_db = Chroma.from_texts(
-                    texts=all_chunks,
-                    embedding=self.embeddings,
-                    metadatas=all_metadatas,
+                # 3. ChromaDB에 추가 (이미 존재하면 로드 후 추가)
+                vector_db = Chroma(
                     persist_directory=self.persist_directory,
+                    embedding_function=self.embeddings,
                     collection_name=self.collection_name
+                )
+                
+                # 배치 단위로 데이터 추가
+                vector_db.add_texts(
+                    texts=all_chunks,
+                    metadatas=all_metadatas
                 )
                 # 4. MySQL 상태 업데이트
                 if article_ids:
