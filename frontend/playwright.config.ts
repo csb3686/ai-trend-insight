@@ -13,8 +13,9 @@ export default defineConfig({
   reporter: 'html',
   use: {
     baseURL: 'http://localhost:5173', // Vite 기본 포트
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
+    trace: 'on', // 모든 테스트 과정 기록 (Trace View용)
+    screenshot: 'on', // 모든 단계 스크린샷 캡처
+    video: 'on', // 모든 테스트 수행 영상 녹화
   },
 
   projects: [
@@ -32,10 +33,10 @@ export default defineConfig({
     },
   ],
 
-  /* 테스트 실행 전 로컬 서버 자동 시작 설정 (현업 권장 방식) */
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-  },
+  /* 이미 npm run dev가 실행 중이므로 자동 서버 시작은 비활성화합니다. */
+  // webServer: {
+  //   command: 'npm run dev',
+  //   url: 'http://localhost:5173',
+  //   reuseExistingServer: !process.env.CI,
+  // },
 });
