@@ -36,6 +36,7 @@ dist/
 chroma-data/
 chroma_storage/
 backend/chroma_storage/
+backend/chroma_db/
 mysql_data/
 
 # ========================
