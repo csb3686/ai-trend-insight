@@ -13,7 +13,7 @@ settings = get_settings()
 class CacheService:
     def __init__(self):
         if not REDIS_AVAILABLE:
-            print("--- [Cache] redis 패키지가 설치되지 않았습니다. 캐싱 기능이 비활성화됩니다. (pip install redis 필요) 🛡️ ---")
+            print("--- [Cache] redis 패키지가 설치되지 않았습니다. 캐싱 기능이 비활성화됩니다. (pip install redis 필요) [SECURE] ---")
             self.client = None
             return
 
@@ -29,9 +29,9 @@ class CacheService:
             )
             # 연결 확인
             self.client.ping()
-            print("--- [Cache] Redis 연결 성공! 고속 캐싱 모드 활성화 🚀 ---")
+            print("--- [Cache] Redis 연결 성공! 고속 캐싱 모드 활성화 [SPEED] ---")
         except Exception:
-            print("--- [Cache] Redis 서버를 찾을 수 없습니다. 표준 DB 모드로 동작합니다. 🛡️ ---")
+            print("--- [Cache] Redis 서버를 찾을 수 없습니다. 표준 DB 모드로 동작합니다. [SECURE] ---")
             self.client = None
 
     def get(self, key: str) -> Optional[Any]:

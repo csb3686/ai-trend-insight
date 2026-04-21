@@ -134,7 +134,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(15, 23, 42, 0.8); /* 약간 투명도 상향 */
   padding: 20px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -157,10 +157,11 @@
   border-radius: 3px; /* 약간의 둥근 사각형으로 세련미 */
 }
 
-.color-dot.ai { background: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
-.color-dot.language { background: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
-.color-dot.framework { background: #8b5cf6; box-shadow: 0 0 10px rgba(139, 92, 246, 0.5); }
-.color-dot.devops { background: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+/* 네온 효과 강화 */
+.color-dot.ai { background: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.7); }
+.color-dot.language { background: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.7); }
+.color-dot.framework { background: #8b5cf6; box-shadow: 0 0 10px rgba(139, 92, 246, 0.7); }
+.color-dot.devops { background: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.7); }
 
 .animate-spin {
   animation: spin 1s linear infinite;

@@ -40,42 +40,65 @@ class RAGService:
         """
         Gemini를 통해 정보를 검색하고, Groq을 통해 초고속으로 답변을 생성하는 하이브리드 RAG 시스템입니다.
         """
-        # 1. 유사한 기사 검색 (Top 3)
-        docs = self.vector_db.similarity_search(question, k=3)
+        # 1. 초도 생성된 가짜 데이터(Google)가 상위권을 장악해서 뚫지 못하므로, K값을 50으로 대폭 올려 진짜 기사만 필터링되도록 보장
+        raw_docs = self.vector_db.similarity_search(question, k=50)
         
-        # 2. 컨텍스트 구성
-        context_str = ""
-        for i, doc in enumerate(docs):
-            title = doc.metadata.get('title', '제목 없음')
+        # 2. 중복 제거 및 가짜 링크 필터링 (URL 및 제목 기준)
+        seen_urls = set()
+        seen_titles = set()
+        unique_docs = []
+        for doc in raw_docs:
             url = doc.metadata.get('url', '#')
-            context_str += f"[{i+1}] 제목: {title}\nURL: {url}\n내용: {doc.page_content}\n\n"
+            title = doc.metadata.get('title', '제목 없음').strip()
+            
+            # 구글 검색 및 GitHub 링크 필터링 (순수 뉴스 기사만 통과)
+            if url.startswith('https://www.google.com/search') or 'github.com' in url:
+                continue
+                
+            if url not in seen_urls and title not in seen_titles and url != '#':
+                unique_docs.append(doc)
+                seen_urls.add(url)
+                seen_titles.add(title)
+            if len(unique_docs) >= 3: # 최종적으로는 유니크한 3개만 사용
+                break
+
+        context_str = ""
+        if not unique_docs:
+            context_str = "수집된 뉴스가 없습니다."
+        else:
+            for i, doc in enumerate(unique_docs):
+                title = doc.metadata.get('title', '제목 없음')
+                url = doc.metadata.get('url', '#')
+                context_str += f"[{i+1}] 제목: {title}\nURL: {url}\n내용: {doc.page_content}\n\n"
         
         # 3. Groq용 메시지 구성 (OpenAI 호환 포맷)
         messages = [
             {
                 "role": "system", 
                 "content": (
-                    "당신은 AI 기술 트렌드 분석 전문가인 'TrendRadar AI'입니다. "
-                    "제공된 [참고 뉴스]들을 바탕으로 질문에 대해 전문적이고 친절하게 답변해 주세요.\n\n"
-                    "**[답변 규칙]**\n"
-                    "1. 반드시 **마크다운(Markdown)** 형식을 사용하여 가독성을 높이세요.\n"
-                    "2. 핵심 키워드는 **굵게(Bold)** 표시하세요.\n"
-                    "3. 복잡한 설명은 **불렛 포인트(Bullet points)**를 활용하여 개조식으로 요약하세요.\n"
-                    "4. 답변 마지막에는 반드시 참고한 기사들 중 가장 관련성이 높은 1~3개를 '**📚 주요 참고 소식**' 섹션에 마크다운 링크 형식으로 나열하세요.\n"
-                    "   - 형식: [기사 제목](기사 URL)\n"
-                    "5. 만약 참고 뉴스에 관련 내용이 없다면, 일반적인 기술 지식을 바탕으로 선의의 답변을 제공하되 출처가 우리 DB가 아님을 명시하세요."
+                    "You are 'TrendRadar AI', an expert in AI technology trends.\n\n"
+                    "**[CRITICAL RULE: YOU MUST OUTPUT ONLY IN SOUTH KOREAN (한국어)]**\n"
+                    "1. Provide your entire response strictly in natural Korean (e.g., ending with ~습니다, ~합니다).\n"
+                    "2. **NEVER** use any Chinese characters (Hanzi/汉字) or Japanese characters (Hiragana/Katakana/Kanji). Translate concepts into Korean.\n"
+                    "3. For the source section ('📚 주요 참고 소식'): \n"
+                    "   - If the Context is '수집된 뉴스가 없습니다.', you MUST output exactly: '\n\n📚 주요 참고 소식\n* 현재 수집된 데이터 중 관련된 뉴스가 없습니다.' and do not create any links.\n"
+                    "   - If the Context has news, you MUST use the provided Titles and URLs to create clickable markdown links format EXACTLY like this: '* [Title](URL)'. DO NOT just output plain text titles. DO NOT invent links.\n\n"
+                    "**[Response Style]**\n"
+                    "- Use Markdown formatting.\n"
+                    "- Highlight key terms in **bold**.\n"
+                    "- Be highly professional and polite."
                 )
             },
             {
                 "role": "user", 
-                "content": f"[참고 뉴스]:\n{context_str}\n\n질문: {question}"
+                "content": f"Context:\n{context_str}\n\nQuestion: {question}"
             }
         ]
 
         payload = {
             "model": self.model_id,
             "messages": messages,
-            "temperature": 0.1,
+            "temperature": 0.2,  # 약간의 다양성을 허용하여 중국어 고착화(Greedy hole) 방지
             "max_tokens": 2048
         }
 
@@ -96,6 +119,10 @@ class RAGService:
             if response.status_code == 200:
                 result = response.json()
                 answer = result['choices'][0]['message']['content']
+                
+                # 강제 한자/일본어 정규식 필터링 (최후의 방어선)
+                import re
+                answer = re.sub(r'[\u4e00-\u9fff\u3040-\u30ff]', '', answer)
             else:
                 error_msg = response.json().get('error', {}).get('message', '알 수 없는 오류')
                 answer = f"Groq API 오류 ({response.status_code}): {error_msg}\n※ .env 파일에 GROQ_API_KEY가 올바르게 입력되었는지 확인해 주세요."
@@ -105,16 +132,12 @@ class RAGService:
 
         # 5. 결과 조립 및 반환
         sources = []
-        # 중복 제거를 위해 URL 기준으로 확인
-        seen_urls = set()
-        for doc in docs:
-            url = doc.metadata.get('url', '#')
-            if url not in seen_urls:
+        if unique_docs:
+            for doc in unique_docs:
                 sources.append({
                     "title": doc.metadata.get('title', '제목 없음'),
-                    "url": url
+                    "url": doc.metadata.get('url', '#')
                 })
-                seen_urls.add(url)
 
         return {
             "answer": answer,

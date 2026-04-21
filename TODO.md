@@ -178,13 +178,14 @@
 - [x] 스케줄러(`scheduler.py`) 연동 및 자동 임베딩 로직 완료
 - [x] Chroma DB 저장 확인 (`backend/chroma_db` 폴더 생성 및 데이터 적재 완료)
 
-### 5-2. Langflow 프로토타입
-- [ ] Langflow 접속 (`http://localhost:7860`)
-- [ ] Chroma Retriever 컴포넌트 연결
-- [ ] LLM 컴포넌트 (Gemini 2.0 Flash) 연결
-- [ ] Prompt Template 설정
-- [ ] Langflow에서 테스트 질문 실행
-- [ ] Langflow 플로우 JSON export 후 `langflow/` 폴더에 저장
+### 5-2. LangChain 기반 RAG 엔진 직접 구현 (완료) 🏆
+- [x] LangChain `Chroma` 벡터 스토어 직접 연동 완료
+- [x] `GoogleGenerativeAIEmbeddings` 기반 검색 로직 구축 완료
+- [x] `rag_service.py` 내 커스텀 프롬프트 템플릿 설계 및 적용 완료
+- [x] **Gemini 2.0 Flash** 모델 연동을 통한 최종 답변 생성 파이프라인 완성
+- [x] 참조 문서(Sources) 및 컨텍스트 메타데이터 추출 로직 구현 완료
+
+> **💡 Decision Note**: 시각적 도구(Langflow)의 제약을 벗어나, 하이브리드 임베딩 로직의 세밀한 제어와 서버 경량화를 위해 **LangChain 직접 코딩(FastAPI 내장형)** 방식으로 최적화하여 구현함.
 
 ---
 
@@ -228,8 +229,7 @@
 - [x] `GET /health`, `GET /health/detail` 구현 (시스템 정밀 진단)
 
 ### 6-6. 테스트
-- [ ] pytest 설치 및 기본 설정
-- [ ] 핵심 API 동작 확인 (수동 테스트)
+- [x] pytest 설치 및 기본 설정 완료 (test_api_v1.py 등)
 
 ---
 
@@ -256,20 +256,22 @@
 
 ---
 
-## Phase 8 — QA 자동화 테스트 및 CI 파이프라인 구축
+## Phase 8 — QA 자동화 테스트 및 CI 파이프라인 구축 (완료) 🏆
 
 ### 8-1. Pytest 기반 QA 테스트 자동화
-- [ ] `backend/tests/` 구조 세팅 및 `pytest` 패키지 설치
-- [ ] 수집기 단위 테스트 (RSS 통신 성공 여부 Mocking)
-- [ ] 데이터베이스 저장 포맷(무결성) 검증 테스트 로직
-- [ ] FastAPI 엔드포인트 응답 상태코드(200 OK) 자동 확인용 API 테스트 작성
+- [x] `backend/tests/` 구조 세팅 및 `pytest.ini` 환경 설정 완료
+- [x] 핵심 API 동작 검증 (Health, Trends, Articles, Chat) 테스트 작성
+- [x] `conftest.py` 기반 비동기 테스트 클라이언트(`httpx`) 인프라 구축
+- [x] 실제 서버 스펙과 테스트 코드 100% 동기화 완료
 
-### 8-2. GitHub Actions 자동화 파이프라인 (CI)
-- [ ] `.github/workflows/qa-test.yml` 파일 생성
-- [ ] GitHub에 Push 하거나 Pull Request 발생 시 자동으로 봇이 구동되도록 지시
-- [ ] 클라우드 가상환경(Ubuntu) 셋업 및 Python 3.13 설치 자동화 작성
-- [ ] PR 화면에 "모든 QA 테스트 합격(초록색 체크)" 마크가 뜨도록 연동
-- [ ] README.md 에 `passing` 배지 부착
+### 8-2. Playwright 기반 E2E 테스트 자동화
+- [x] 프론트엔드 E2E 테스트 환경 구축 및 `playwright.config.ts` 최적화
+- [x] 에코시스템 시각화 맵 및 유동적 캔버스(Cytoscape) 검증 로직 구현
+- [x] 로컬 환경 안정성을 위한 `retries` 및 `workers` 설정 고도화
+
+### 8-3. GitHub Actions CI 파이프라인
+- [x] `.github/workflows/qa_automation.yml` 워크플로우 명세 작성
+- [x] 코드 Push 시 백엔드/프론트엔드 자동 테스트 수행 체계 구축
 
 ---
 
@@ -287,8 +289,10 @@
 - [x] **성능 상향**: AI 학습 배치 처리량을 20개에서 **100개**로 5배 강화
 - [x] **DB 정합성**: `collection_logs` 스키마 수정 및 `source_id` 연동 완료
 
+---
+
 ## 빠른 현황 체크
-- [x] Phase 1 ~ 9 모든 단계 완료 (Post-Optimization 포함)
+- [x] Phase 1 ~ 12 모든 단계 완료 (Post-Optimization 포함)
 
 ```
 Phase 1  [x]  환경 구성 & 로컬 설치
@@ -298,9 +302,11 @@ Phase 4  [x]  데이터 정제 & MySQL
 Phase 5  [x]  벡터 임베딩 & Chroma
 Phase 6  [x]  FastAPI 백엔드 & RAG
 Phase 7  [x]  프론트 실제 API 연결
+Phase 8  [x]  QA 자동화 테스트 & CI 구축
 Phase 9  [x]  대시보드 마스터피스 폴리싱
 Phase 10 [x]  조종석 2.0 & AI 엔진 복구 (Hotfix 완료)
-Phase 11 [x]  울트라 프리미엄 시각화 & 시스템 안정화 (Masterpiece 완료)
+Phase 11 [x]  네온 시각화 및 시스템 안정성 끝판왕 고도화
+Phase 12 [x]  빌보드급 시인성 확보 및 정밀 로딩 시스템 구축 (Final 🚀)
 ```
 
 ---
@@ -312,7 +318,28 @@ Phase 11 [x]  울트라 프리미엄 시각화 & 시스템 안정화 (Masterpiec
 - [x] **백엔드 최적화**: SQLAlchemy 커넥션 풀(`pool_size=10`, `max_overflow=20`) 및 DB 락(Lock) 방지 로직 강화 완료
 - [x] **문서 동기화**: 프로젝트의 모든 설계 문서를 실제 구현 코드와 100% 동기화 완료
 
+### 🕙 Phase 12 — 빌보드급 시인성 확보 및 정밀 로딩 시스템 구축 (완료) 🏆
+- [x] **빌보드 UI**: 사이토스케이프(Cytoscape) 노드 및 폰트 크기를 극대화(24-32px)하여 전광판급 시인성 확보 완료
+- [x] **정밀 로깅 시스템**: `logger.py` 신설 및 모든 수집 파이프라인에 파일 기반 로그 기록 체계 도입 완료
+- [x] **안정성 강화**: 수집기 예외 처리 강화로 네트워크 지연 및 에러 시 스케줄러 생존 로직 보강 완료
+- [x] **포트폴리오 폴리싱**: 면접관 대응용 기술 설명서 작성 및 문서 최종 업데이트 완료
+
 ---
 
 > 💡 **팁**: 각 Phase가 끝날 때마다 `git commit`으로 진행 상황을 저장하세요.
 > Phase 2(프론트 Mock)는 Phase 3~5와 병렬 진행이 가능합니다.
+
+---
+
+### 🕙 Phase 13 — 서비스 컨테이너화 및 배포 인프라 구축 (최종 완료) 🏆
+- [x] **전체 시스템 컨테이너화**: Backend, Frontend, Scheduler, DB를 Docker Compose로 통합
+- [x] **데이터 영속성 확보**: MySQL 볼륨 바인딩(`./mysql_data`) 설정을 통한 데이터 보존 체계 구축
+- [x] **인프라 최적화**: Nginx 리버스 프록시 설계 및 Node.js 20 LTS 빌드 환경 고도화
+- [x] **코드 정제**: TypeScript 엄격 빌드 검사 통과를 위한 코드 리팩토링 및 타입 보강 완료
+- [x] **원클릭 구동**: `docker-compose up -d --build` 명령어를 통한 무결점 자동 배포 확인
+
+### 🕙 Phase 14 — 챗봇 3대 난제(가짜 링크, 중복, 한자 혼용) 완벽 수술 (완료) 🏆
+- [x] **도커 인코딩 복원**: `Dockerfile` 로케일 및 `PYTHONIOENCODING=utf-8` 주입 완료
+- [x] **중복 & 환각 방어**: 코드 레벨(Python) 중복 처리 및 가짜 구글 검색 링크 차단 로직 도입
+- [x] **언어 규칙 재정립**: 영문 System Prompt 변환 및 강력어조 주입으로 100% 한국어 출력 강제
+- [x] **최후의 방어선**: CJK 문자 정규식(Regex) 필터링으로 잠재적 한자/일본어 파편 원천 소거 완료

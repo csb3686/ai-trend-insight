@@ -19,6 +19,7 @@ export type TrendTopItem = {
   category: string;
   change_rate: number;
   rank: number;
+  timeline: TrendTimelineItem[];
 };
 
 export type TrendTop5Response = {

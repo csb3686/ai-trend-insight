@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # 1. Database (MySQL 8.0)
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-ai_trend}
+    ports:
+      - "3307:3306" # 로컬 포트 3307 사용 (기존 3306 충돌 방지)
+    volumes:
+      - ./mysql_data:/var/lib/mysql # 데이터 보존
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # 초기 스키마 주입
+    networks:
+      - ai-network
+
+  # 2. Backend (FastAPI)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env.docker
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/:/backend
+      - PYTHONIOENCODING=utf-8
+    depends_on:
+      - db
+    networks:
+      - ai-network
+
+  # 3. Scheduler (Collector)
+  scheduler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env.docker
+    environment:
+      - PYTHONPATH=/:/backend
+      - PYTHONIOENCODING=utf-8
+    command: ["python", "pipeline/scheduler.py"] # 스케줄러 자동 기동
+    depends_on:
+      - db
+    networks:
+      - ai-network
+
+  # 4. Frontend (React + Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - ai-network
+
+networks:
+  ai-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
