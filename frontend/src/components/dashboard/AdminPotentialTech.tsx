@@ -20,7 +20,7 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
   const [stats, setStats] = useState<{total:number, embedded:number, percent:number} | null>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingRef = useRef<any | null>(null);
 
   const API_BASE_URL = "http://localhost:8000/api/v1";
 
@@ -190,6 +190,29 @@ const AdminPotentialTech: React.FC<Props> = ({ secret }) => {
           <button onClick={() => fetchAdminData()} className="refresh-btn" disabled={loading}>새로고침</button>
         </div>
       </div>
+
+      {/* 실시간 대형 프로그레스 바 (작업 중일 때만 노출) */}
+      {activeTask && (
+        <div className={`active-task-progress-container ${activeTask.task_type.toLowerCase()}`}>
+          <div className="progress-info-row">
+            <span className="task-name-label">
+              <span className="pulse-dot"></span>
+              {activeTask.task_type === 'COLLECT' ? '기사 수집 및 전처리 진행 중...' :
+               activeTask.task_type === 'EMBED' ? 'AI 벡터 임베딩 학습 중...' :
+               activeTask.task_type === 'STATS' ? '트렌드 데이터 통계 집계 중...' : '시스템 작업 수행 중...'}
+            </span>
+            <span className="task-percent-value">{(activeTask.progress || 0)}%</span>
+          </div>
+          <div className="progress-bar-track">
+            <div 
+              className="progress-bar-fill" 
+              style={{ width: `${activeTask.progress || 0}%` }}
+            >
+              <div className="glow-effect"></div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {loading && !activeTask && (
         <div className="admin-loading-banner">

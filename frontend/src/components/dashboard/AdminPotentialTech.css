@@ -248,3 +248,102 @@
 }
 .btn-reset-db:hover:not(:disabled) { background: #b91c1c; }
 .btn-reset-db:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 🚀 Cockpit 2.0 실시간 네온 프로그레스 바 스타일 */
+.active-task-progress-container {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.25rem 1.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  animation: slideDown 0.4s ease-out;
+}
+
+.progress-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.task-name-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+  box-shadow: 0 0 10px #3b82f6;
+  animation: pulse 1.5s infinite;
+}
+
+.task-percent-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  color: #3b82f6;
+  font-size: 1.1rem;
+}
+
+.progress-bar-track {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 20px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+/* 작업별 테마 색상 */
+.active-task-progress-container.collect .pulse-dot { background: #3b82f6; box-shadow: 0 0 10px #3b82f6; }
+.active-task-progress-container.collect .task-percent-value { color: #3b82f6; }
+.active-task-progress-container.collect .progress-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+
+.active-task-progress-container.embed .pulse-dot { background: #8b5cf6; box-shadow: 0 0 10px #8b5cf6; }
+.active-task-progress-container.embed .task-percent-value { color: #a78bfa; }
+.active-task-progress-container.embed .progress-bar-fill { background: linear-gradient(90deg, #8b5cf6, #a78bfa); box-shadow: 0 0 15px rgba(139, 92, 246, 0.5); }
+
+.active-task-progress-container.stats .pulse-dot { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+.active-task-progress-container.stats .task-percent-value { color: #fbbf24; }
+.active-task-progress-container.stats .progress-bar-fill { background: linear-gradient(90deg, #f59e0b, #fbbf24); box-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
+
+.glow-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shine 2s infinite;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

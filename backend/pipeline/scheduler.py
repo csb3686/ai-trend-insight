@@ -4,18 +4,18 @@ import time
 import schedule
 import traceback
 from datetime import datetime
-from backend.app.core.logger import get_logger
+from app.core.logger import get_logger
 
-# 현재 디렉토리 구조상 모듈 임포트를 위해 경로 추가
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+# 현재 디렉토리(pipeline)의 부모(backend)를 경로에 추가
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backend.pipeline.collectors.geek_news_collector import GeekNewsCollector
-from backend.pipeline.collectors.hacker_news_collector import HackerNewsCollector
-from backend.pipeline.collectors.github_trending_collector import GithubTrendingCollector
-from backend.pipeline.processors.processor import DataProcessorManager
-from backend.pipeline.processors.stats_aggregator import TrendsAggregator
-from backend.pipeline.embedder.embedder import ArticleEmbedder
-from backend.app.core.database import SessionLocal
+from pipeline.collectors.geek_news_collector import GeekNewsCollector
+from pipeline.collectors.hacker_news_collector import HackerNewsCollector
+from pipeline.collectors.github_trending_collector import GithubTrendingCollector
+from pipeline.processors.processor import DataProcessorManager
+from pipeline.processors.stats_aggregator import TrendsAggregator
+from pipeline.embedder.embedder import ArticleEmbedder
+from app.core.database import SessionLocal
 
 logger = get_logger()
 

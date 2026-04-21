@@ -6,7 +6,7 @@ from app.models.article import ArticleTechnology
 from app.models.trend import Trend
 
 class AnalysisService:
-    def get_tech_ecosystem(self, db: Session, limit: int = 40) -> Dict[str, Any]:
+    def get_tech_ecosystem(self, db: Session, limit: int = 30) -> Dict[str, Any]:
         """
         기술 간의 상관관계(동시 언급)를 분석하여 네트워크 그래프 데이터를 생성합니다.
         가장 많이 언급된 기술 상위 limit(기본 40)개를 대상으로 합니다.
@@ -16,8 +16,8 @@ class AnalysisService:
             Technology.id, 
             Technology.name, 
             Technology.category,
-            func.max(Trend.mention_count).label("max_mentions")
-        ).join(Trend, Technology.id == Trend.tech_id)\
+            func.coalesce(func.max(Trend.mention_count), 0).label("max_mentions")
+        ).outerjoin(Trend, Technology.id == Trend.tech_id)\
          .filter(Technology.is_active == True)\
          .group_by(Technology.id, Technology.name, Technology.category)\
          .order_by(desc("max_mentions"))\

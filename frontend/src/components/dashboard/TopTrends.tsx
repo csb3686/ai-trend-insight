@@ -1,10 +1,14 @@
 import React from 'react';
-import { Loader2, TrendingUp } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, YAxis } from 'recharts';
 import { useTopTrends } from '../../api/hooks/useTrends';
 import './TopTrends.css';
 
-const TopTrends: React.FC = () => {
+interface TopTrendsProps {
+  onTechClick?: (techId: number) => void;
+}
+
+const TopTrends: React.FC<TopTrendsProps> = ({ onTechClick }) => {
   const { data, isLoading, isError } = useTopTrends();
 
   if (isLoading) {
@@ -36,7 +40,6 @@ const TopTrends: React.FC = () => {
       <div className="trend-list-ultra">
         {displayTrends.map((trend, index) => {
           const change = Number(trend.change_rate);
-          const isUp = change > 0;
           
           const colors = [
             { main: '#fbbf24', shadow: 'rgba(251, 191, 36, 0.5)' }, // 1위 골드
@@ -51,6 +54,8 @@ const TopTrends: React.FC = () => {
             <div 
               key={`${trend.name}-${index}`} 
               className={`trend-card-ultra rank-${index + 1}`}
+              onClick={() => onTechClick?.(trend.tech_id)}
+              style={{ cursor: onTechClick ? 'pointer' : 'default' }}
             >
               {/* 배경에 깔리는 고해상도 미니 차트 (Sparkline) - 높이 상향 */}
               <div className="sparkline-bg-ultra">

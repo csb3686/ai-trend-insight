@@ -37,9 +37,9 @@ async def init_db_schema():
             add_sql = text("ALTER TABLE collection_logs ADD COLUMN progress INT NOT NULL DEFAULT 0 AFTER status")
             db.execute(add_sql)
             db.commit()
-            print("[Initialization] progress 컬럼 생성 완료! ✅")
+            print("[Initialization] progress 컬럼 생성 완료! [OK]")
         else:
-            print("[Initialization] 스키마가 최신 상태입니다. ✅")
+            print("[Initialization] 스키마가 최신 상태입니다. [OK]")
     except Exception as e:
         print(f"[Initialization Warning] 스키마 확인 중 오류 (이미 존재할 수 있음): {e}")
     finally:
@@ -131,6 +131,8 @@ async def run_full_pipeline_debug(db: Session = Depends(get_db)):
 
 # CORS 설정 (라우터 등록 전에 배치해야 안전하게 적용됩니다)
 origins = [
+    "http://localhost",
+    "http://127.0.0.1",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
@@ -145,6 +147,11 @@ app.add_middleware(
 
 # 라우터 등록
 app.include_router(api_router, prefix="/api/v1")
+
+@app.get("/api/v1/health", tags=["System"])
+async def health_check():
+    """시스템 상태 확인을 위한 헬스체크 API"""
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 @app.get("/", tags=["Root"])
 async def root():
