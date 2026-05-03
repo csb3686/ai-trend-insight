@@ -1,13 +1,14 @@
 import os
 import sys
 import time
+
+# 현재 디렉토리(pipeline)의 부모(backend)를 경로에 추가 (임포트 전 실행 필수)
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import schedule
 import traceback
 from datetime import datetime
 from app.core.logger import get_logger
-
-# 현재 디렉토리(pipeline)의 부모(backend)를 경로에 추가
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from pipeline.collectors.geek_news_collector import GeekNewsCollector
 from pipeline.collectors.hacker_news_collector import HackerNewsCollector

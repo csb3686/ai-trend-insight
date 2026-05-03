@@ -61,9 +61,11 @@ const NewsPage: React.FC = () => {
   return (
     <div className="app-container">
       <div className="main-content">
-        <Header />
+        <div className="page-container" style={{ paddingBottom: 0 }}>
+          <Header />
+        </div>
         
-        <main className="page-container news-archive-container">
+        <main className="news-archive-container">
           <section className="news-hero glass-panel">
             <div className="hero-top-row">
               <button className="back-btn" onClick={() => navigate(-1)}>

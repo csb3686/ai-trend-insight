@@ -2,7 +2,8 @@
 .news-archive-container {
   padding-top: 1rem;
   padding-bottom: 5rem;
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1200px; /* 3열 배치에 최적화된 너비로 복구 */
   margin: 0 auto;
 }
 
@@ -199,7 +200,7 @@
 /* 뉴스 그리드 마스터 */
 .news-grid-master {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-columns: repeat(3, 1fr); /* 무조건 3열 고정 */
   gap: 1.5rem;
 }
 
