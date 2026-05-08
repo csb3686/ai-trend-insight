@@ -1,39 +1,43 @@
-# 🐞 결함 리포트 양식 (BUG_REPORT_TEMPLATE.md)
+# 🐛 버그 리포트 템플릿 (Bug Report)
 
-| 항목 | 내용 |
-| :--- | :--- |
-| **결함 ID** | [QA-BUG-001] |
-| **결함 제목** | [기능명] 요약 설명 |
-| **우선순위** | P0 (긴급) / P1 (높음) / P2 (보통) |
-| **상태** | Open / In-Progress / Resolved / Verified |
-| **제보자** | QA Engineer |
+탐색적 테스트(수동 테스트) 진행 중 발견된 결함을 개발팀에 명확하게 전달하기 위한 템플릿입니다.
+
+## 📝 1. 기본 정보
+*   **보고자**: [이름/직급]
+*   **발견 일시**: 202X-XX-XX
+*   **이슈 심각도**: [🟢 Trivial / 🟡 Minor / 🟠 Major / 🔴 Critical]
+*   **테스트 환경**: [OS 및 브라우저 버전 / Ex: Windows 11, Chrome 124]
+
+---
+
+## 🎯 2. 버그 설명 (Description)
+어떤 문제가 발생했는지 한 줄로 간략하게 요약해 주세요.
+*   **요약**: (예: 히트맵에서 'React' 키워드를 클릭해도 우측 패널이 열리지 않음)
 
 ---
 
-### 1. 결함 설명 (Description)
-- 결함이 발생하는 현상에 대한 간략한 설명
-
-### 2. 재현 환경 (Environment)
-- **Browser**: Chrome / Firefox / Safari (Version)
-- **Device**: Desktop / Mobile
-- **URL**: [발생 페이지 주소]
-
-### 3. 재현 단계 (Steps to Reproduce)
-1. 첫 번째 단계
-2. 두 번째 단계
-3. 세 번째 단계 (결함 발생 지점)
-
-### 4. 기대 결과 vs 실제 결과 (Expected vs Actual)
-- **Expected**: 정상적으로 동작해야 하는 결과
-- **Actual**: 현재 나타나는 오류 현상
-
-### 5. 증거 자료 (Evidence)
-- **Screenshot**: ![Caption](link_to_image)
-- **Video**: [Link to Video]
-- **Log**: [Stack Trace 또는 API 에러 로그]
+## 👣 3. 재현 단계 (Steps to Reproduce)
+개발자가 내 컴퓨터와 똑같은 환경에서 에러를 겪어볼 수 있도록 순서대로 적어주세요.
+1. [메인 대시보드 페이지]로 이동한다.
+2. 스크롤을 내려 [히트맵 섹션]을 찾는다.
+3. [React] 노드를 마우스로 좌클릭한다.
+4. 우측에서 사이드 패널이 열리는지 확인한다.
 
 ---
-### 🚦 담당 개발자 코멘트
-- [ ] 원인 분석:
-- [ ] 수정 내용:
-- [ ] 연관 영향 범위:
+
+## ❌ 4. 실제 결과 (Actual Result)
+위 단계를 거쳤을 때 실제로 일어난 오작동을 적어주세요.
+*   클릭해도 아무 반응이 없으며, 브라우저 콘솔 창에 `TypeError: Cannot read property 'id' of undefined` 에러가 발생함.
+
+---
+
+## ✅ 5. 기대 결과 (Expected Result)
+기획서(또는 TC)에 정의된 올바른 작동 방식을 적어주세요.
+*   클릭 시 우측 패널이 부드럽게 열리며, React와 관련된 최신 기사 5개가 노출되어야 함.
+
+---
+
+## 📎 6. 첨부 자료 (Attachments)
+에러 상황을 증명할 수 있는 로그, 스크린샷, 화면 녹화 영상을 첨부해 주세요.
+*   [스크린샷 이미지 캡처 첨부]
+*   [Playwright Trace Viewer 로그 첨부]
